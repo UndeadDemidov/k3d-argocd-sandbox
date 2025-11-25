@@ -6,6 +6,7 @@ K3S_MANIFEST_PATH := $(shell pwd)/k3s-manifests
 K3S_STORAGE_PATH := $(shell pwd)/k3s-storage
 REGISTRY_DOCKERHUB_CACHE := $(shell pwd)/registry/dockerhub
 REGISTRY_GHCR_CACHE := $(shell pwd)/registry/ghcr
+REGISTRY_QUAY_CACHE := $(shell pwd)/registry/quay
 REGISTRY_GITLAB_CACHE := $(shell pwd)/registry/gitlab
 REGISTRY_LOCAL_CACHE := $(shell pwd)/registry/local
 
@@ -69,6 +70,7 @@ help:
 	@echo "  $(PURPLE)K3S_STORAGE_PATH$(RESET)          $(GRAY)└─$(RESET) Path to storage (default: ./k3s-storage)"
 	@echo "  $(PURPLE)REGISTRY_DOCKERHUB_CACHE$(RESET)  $(GRAY)└─$(RESET) Docker Hub cache path (default: ./registry/dockerhub)"
 	@echo "  $(PURPLE)REGISTRY_GHCR_CACHE$(RESET)       $(GRAY)└─$(RESET) GitHub Container Registry cache path (default: ./registry/ghcr)"
+	@echo "  $(PURPLE)REGISTRY_QUAY_CACHE$(RESET)       $(GRAY)└─$(RESET) Quay.io cache path (default: ./registry/quay)"
 	@echo "  $(PURPLE)REGISTRY_GITLAB_CACHE$(RESET)     $(GRAY)└─$(RESET) GitLab cache path (default: ./registry/gitlab)"
 	@echo "  $(PURPLE)REGISTRY_LOCAL_CACHE$(RESET)      $(GRAY)└─$(RESET) Local registry cache path (default: ./registry/local)"
 	@echo ""
@@ -82,6 +84,7 @@ init-dirs:
 	@echo "Creating necessary directories..."
 	@mkdir -p $(REGISTRY_DOCKERHUB_CACHE)
 	@mkdir -p $(REGISTRY_GHCR_CACHE)
+	@mkdir -p $(REGISTRY_QUAY_CACHE)
 	@mkdir -p $(REGISTRY_GITLAB_CACHE)
 	@mkdir -p $(REGISTRY_LOCAL_CACHE)
 	@mkdir -p $(K3S_STORAGE_PATH)
@@ -115,6 +118,17 @@ setup:
 			-p 5001:5000 \
 			-e OTEL_TRACES_EXPORTER=none \
 			-e REGISTRY_PROXY_REMOTEURL=https://ghcr.io \
+			registry:3; \
+	fi
+	@if ! docker ps | grep -q "k3d-quay-io"; then \
+		echo "Creating Quay.io proxy registry..."; \
+		docker run -d --rm \
+			--name k3d-quay-io \
+			--network k3d-network \
+			-v ${REGISTRY_QUAY_CACHE}:/var/lib/registry \
+			-p 5002:5000 \
+			-e OTEL_TRACES_EXPORTER=none \
+			-e REGISTRY_PROXY_REMOTEURL=https://quay.io \
 			registry:3; \
 	fi
 	@if ! docker ps | grep -q "k3d-gitlab-com"; then \
@@ -159,7 +173,9 @@ cleanup:
 	@$(MAKE) delete
 	@docker stop k3d-docker-io 2>/dev/null || true
 	@docker stop k3d-ghcr-io 2>/dev/null || true
+	@docker stop k3d-quay-io 2>/dev/null || true
 	@docker stop k3d-gitlab-com 2>/dev/null || true
+	@docker stop k3d-local-registry 2>/dev/null || true
 
 # Start cluster
 start:

@@ -23,6 +23,9 @@ registries:
       "ghcr.io":
         endpoint:
           - http://k3d-ghcr-io:5000
+      "quay.io":
+        endpoint:
+          - http://k3d-quay-io:5000
       "gitlab.com":
         endpoint:
           - http://k3d-gitlab-com:5000
@@ -37,6 +40,9 @@ registries:
         tls:
           insecure_skip_verify: true
       "k3d-ghcr-io:5000":
+        tls:
+          insecure_skip_verify: true
+      "k3d-quay-io:5000":
         tls:
           insecure_skip_verify: true
       "k3d-gitlab-com:5000":
