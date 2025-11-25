@@ -1,0 +1,34 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/UndeadDemidov/k3d-argocd-sandbox.git'
+    targetRevision: main
+    path: argocd/managed/self
+    helm:
+      parameters:
+        - name: type
+          value: managed
+        - name: server
+          value: https://kubernetes.default.svc
+        - name: cluster
+          value: in-cluster
+        - name: project
+          value: default
+        - name: ns
+          value: argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: true

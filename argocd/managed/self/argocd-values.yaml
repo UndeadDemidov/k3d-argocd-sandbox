@@ -1,0 +1,17 @@
+# Global configuration
+global:
+  domain: argocd.local
+  clusterConfig:
+    enabled: true
+    defaultCluster: "https://kubernetes.default.svc"
+
+# Server configuration
+server:
+  service:
+    type: NodePort
+    nodePortHttp: 30080
+    nodePortHttps: 30443
+  extraArgs:
+    - --insecure
+  ingress:
+    enabled: false

@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-self
+  namespace: argocd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    targetRevision: 7.3.9
+    chart: argo-cd
+    helm:
+      releaseName: argocd
+      values: |
+{{ .Files.Get "argocd-values.yaml" | nindent 8 }}
