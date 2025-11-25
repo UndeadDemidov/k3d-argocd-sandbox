@@ -7,7 +7,7 @@ metadata:
 spec:
   project: {{ .Values.project }}
   destination:
-    server: {{ .Values.server }}
+    name: {{ .Values.cluster }}
     namespace: {{ .Values.ns }}
   syncPolicy:
     automated:
