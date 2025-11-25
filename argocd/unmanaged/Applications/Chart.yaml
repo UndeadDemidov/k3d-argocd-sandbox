@@ -1,6 +1,5 @@
 apiVersion: v2
-name: Applications
+name: applications
 description: Applications for unmanaged applications
-type: application
 version: 0.1.0
 appVersion: "1.0"
