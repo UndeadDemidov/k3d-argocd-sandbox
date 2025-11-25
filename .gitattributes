@@ -1,0 +1,4 @@
+**/vault/** filter=git-crypt diff=git-crypt
+**/vault filter=git-crypt diff=git-crypt
+**/*.vault filter=git-crypt diff=git-crypt
+.gitattributes !filter !diff
