@@ -131,7 +131,7 @@ make argo-pw
 **Result:**
 
 - Displays the admin password in the terminal
-- Use this password to log in to ArgoCD UI at `http://localhost:9999`
+- Use this password to log in to ArgoCD UI at [http://localhost:9999](http://localhost:9999)
 - Username: `admin`
 - Password: (the output from this command)
 
@@ -191,6 +191,9 @@ make managed
 - ArgoCD will sync and deploy managed applications
 - The App of Apps pattern will create child applications
 - You can monitor the deployment in the ArgoCD UI
+- Now you can log in to ArgoCD UI at [http://localhost:8080](http://localhost:8080)
+
+> Repeat `make port` if you want to log in to ArgoCD UI at [http://localhost:9999](http://localhost:9999)
 
 ### Step 10: Set Up Sealed Secrets
 
@@ -313,6 +316,13 @@ make status
 ```sh
 kubectl cluster-info
 kubectl get nodes
+```
+
+### ArgoCD UI not accessible at http://localhost:9999
+
+```sh
+kubectl get svc -n argocd
+make port
 ```
 
 ## Cleanup
