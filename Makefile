@@ -183,6 +183,10 @@ unmanaged:
 	kubectl apply -f argocd/unmanaged/AppProject.yaml
 	kubectl apply -f argocd/unmanaged/AppOfApps.yaml
 
+managed:
+	@echo "Deploying managed applications..."
+	kubectl apply -f argocd/managed/bootstrap.yaml
+
 test:
 	@echo "Testing unmanaged applications..."
 	curl http://localhost:8090/

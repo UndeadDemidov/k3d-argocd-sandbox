@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: argocd-bootstrap
+  name: argocd-bootstrap-managed
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -9,8 +9,8 @@ spec:
   project: default
   source:
     repoURL: https://github.com/UndeadDemidov/k3d-argocd-sandbox
-    path: argocd/config
-    targetRevision: master
+    path: argocd/managed/config
+    targetRevision: main
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
