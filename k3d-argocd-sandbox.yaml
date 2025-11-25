@@ -1,0 +1,73 @@
+---
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: k3d-argocd-sandbox
+servers: 1
+agents: 0
+image: docker.io/rancher/k3s:v1.31.5-k3s1
+registries:
+  use:
+    - k3d-local-registry:5000
+  config: |
+    mirrors:
+      "docker.io":
+        endpoint:
+          - http://k3d-docker-io:5000
+      "index.docker.io":
+        endpoint:
+          - http://k3d-docker-io:5000
+      "registry-1.docker.io":
+        endpoint:
+          - http://k3d-docker-io:5000
+      "ghcr.io":
+        endpoint:
+          - http://k3d-ghcr-io:5000
+      "gitlab.com":
+        endpoint:
+          - http://k3d-gitlab-com:5000
+      "registry.gitlab.com":
+        endpoint:
+          - http://k3d-gitlab-com:5000
+      "registry.local":
+        endpoint:
+          - http://k3d-local-registry:5000
+    configs:
+      "k3d-docker-io:5000":
+        tls:
+          insecure_skip_verify: true
+      "k3d-ghcr-io:5000":
+        tls:
+          insecure_skip_verify: true
+      "k3d-gitlab-com:5000":
+        tls:
+          insecure_skip_verify: true
+      "k3d-local-registry:5000":
+        tls:
+          insecure_skip_verify: true
+network: k3d-network
+volumes:
+  - volume: ${K3S_MANIFEST_PATH}:/var/lib/rancher/k3s/server/manifests/helm
+  - volume: ${K3S_STORAGE_PATH}:/var/lib/rancher/k3s/storage
+ports:
+  - port: 3:5000 # local registry
+    nodeFilters:
+      - server:0
+  - port: 80:80 # http
+    nodeFilters:
+      - loadbalancer
+  - port: 443:443 # https
+    nodeFilters:
+      - loadbalancer
+  - port: 9999:9999 # portForwarding
+    nodeFilters:
+      - loadbalancer
+  - port: 8080:30080 # frontend
+    nodeFilters:
+      - server:0
+  - port: 8090:30090 # backend
+    nodeFilters:
+      - server:0
+  - port: 3000:30030 # grafana
+    nodeFilters:
+      - server:0
