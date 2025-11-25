@@ -179,7 +179,6 @@ argo-pw:
 
 unmanaged:
 	@echo "Deploying unmanaged applications..."
-	kubectl apply -f argocd/unmanaged/Repositories.yaml
 	kubectl apply -f argocd/unmanaged/Namespace.yaml
 	kubectl apply -f argocd/unmanaged/AppProject.yaml
 	kubectl apply -f argocd/unmanaged/AppOfApps.yaml
