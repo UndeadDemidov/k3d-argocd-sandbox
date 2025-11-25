@@ -7,3 +7,8 @@ It is sandbox with k3d and argocd to learn capabilities
 make init
 make create
 run k9s or lens
+
+make argo
+make argo-pw
+
+make unmanaged

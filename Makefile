@@ -142,8 +142,9 @@ status:
 	@docker ps | awk 'NR==1 || /k3d-/'
 
 # Create directories for registry caches
-.PHONY: init-dirs
+.PHONY: init-dirs init
 
+# Create necessary directories
 init-dirs:
 	@echo "Creating necessary directories..."
 	@mkdir -p $(REGISTRY_DOCKERHUB_CACHE)
@@ -154,7 +155,27 @@ init-dirs:
 	@echo "Directories created!"
 
 # Full initialization (create directories + configure registries)
-.PHONY: init
-
 init: init-dirs setup
-	@echo "Initialization complete!" 
+	@echo "Initialization complete!"
+
+.PHONY: helm argo
+
+helm:
+	@echo "Adding ArgoCD Helm repository..."
+	@helm repo add argo https://argoproj.github.io/argo-helm
+	@helm repo update argo
+
+argo:
+	@echo "Deploying ArgoCD..."
+	@helm install argocd argo/argo-cd -n argocd --version 7.3.9 --create-namespace
+	@kubectl port-forward svc/argocd-server -n argocd 9999:80
+
+argo-pw:
+	@echo "Getting ArgoCD admin password..."
+	@kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+
+unmanaged:
+	@echo "Deploying unmanaged applications..."
+	@kubectl apply -f argocd/unmanaged/Namespace.yaml
+	@kubectl apply -f argocd/unmanaged/AppProject.yaml
+	@kubectl apply -f argocd/unmanaged/AppOfApps.yaml

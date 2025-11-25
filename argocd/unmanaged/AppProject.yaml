@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: http-echo
+  namespace: argocd
+spec:
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  destinations:
+    - name: '*'
+      namespace: '*'
+      server: https://kubernetes.default.svc
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  roles:
+    - name: allow-all
+      policies:
+        - p, proj:http-echo:allow-all, applications, *, http-echo/*, allow
+  sourceNamespaces:
+    - '*'
+  sourceRepos:
+    - https://github.com/UndeadDemidov/k3d-argocd-sandbox.git
