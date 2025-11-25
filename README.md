@@ -2,7 +2,7 @@
 
 A sandbox environment with k3d and ArgoCD to learn and experiment with GitOps capabilities.
 
-This project provides a complete local Kubernetes development environment using k3d (Kubernetes in Docker) with ArgoCD for continuous deployment. It includes proxy registries for Docker Hub, GHCR, and GitLab, as well as examples of both managed and unmanaged ArgoCD applications.
+This project provides a complete local Kubernetes development environment using k3d (Kubernetes in Docker) with ArgoCD for continuous deployment. It includes proxy registries for Docker Hub, GHCR, Quay.io, and GitLab, as well as examples of both managed and unmanaged ArgoCD applications.
 
 ## Prerequisites
 
@@ -26,15 +26,16 @@ make init
 **What it does:**
 
 - Creates necessary directories for registry caches and k3s storage
-- Sets up proxy registries for Docker Hub, GHCR, GitLab, and a local registry
+- Sets up proxy registries for Docker Hub, GHCR, Quay.io, GitLab, and a local registry
 - Creates a Docker network (`k3d-network`) for registry communication
 
 **Result:**
 
-- Directories created: `registry/dockerhub`, `registry/ghcr`, `registry/gitlab`, `registry/local`, `k3s-storage`
-- Four proxy registry containers running:
+- Directories created: `registry/dockerhub`, `registry/ghcr`, `registry/quay`, `registry/gitlab`, `registry/local`, `k3s-storage`
+- Five proxy registry containers running:
   - `k3d-docker-io` on port 5000 (Docker Hub proxy)
   - `k3d-ghcr-io` on port 5001 (GHCR proxy)
+  - `k3d-quay-io` on port 5002 (Quay.io proxy)
   - `k3d-gitlab-com` on port 5005 (GitLab proxy)
   - `k3d-local-registry` on port 5010 (local registry)
 - Docker network `k3d-network` created
