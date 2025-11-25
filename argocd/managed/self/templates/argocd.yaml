@@ -2,12 +2,11 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: argocd-self
-  namespace: argocd
 spec:
-  project: default
+  project: {{ .Values.project }}
   destination:
-    server: https://kubernetes.default.svc
-    namespace: argocd
+    server: {{ .Values.server }}
+    namespace: {{ .Values.ns }}
   syncPolicy:
     automated:
       prune: true
