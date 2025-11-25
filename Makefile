@@ -18,8 +18,9 @@ PURPLE = \033[1;35m
 GRAY = \033[2;37m
 RESET = \033[0m
 
-# Main targets
-.PHONY: help setup create delete recreate cleanup
+# All targets
+.PHONY: help init init-dirs setup create delete recreate cleanup start stop status \
+	helm argo port argo-pw unmanaged managed test ss-key ss ss-show
 
 # Default target - show help
 help:
@@ -27,30 +28,70 @@ help:
 	@echo "$(CYAN)║                    $(YELLOW)K3D Cluster Manager$(CYAN)                       ║$(RESET)"
 	@echo "$(CYAN)╚══════════════════════════════════════════════════════════════╝$(RESET)"
 	@echo ""
-	@echo "$(GREEN)Usage:$(RESET) make $(PURPLE){setup|create|delete|recreate|cleanup|help}$(RESET)"
+	@echo "$(GREEN)Usage:$(RESET) make $(PURPLE){target}$(RESET)"
 	@echo ""
-	@echo "$(YELLOW)Commands:$(RESET)"
+	@echo "$(YELLOW)Cluster Management:$(RESET)"
+	@echo "  $(PURPLE)init$(RESET)       $(GRAY)└─$(RESET) Create directories and configure registries"
+	@echo "  $(PURPLE)init-dirs$(RESET)  $(GRAY)└─$(RESET) Create necessary directories"
 	@echo "  $(PURPLE)setup$(RESET)      $(GRAY)└─$(RESET) Create proxy registries"
-	@echo "  $(PURPLE)init$(RESET)       $(GRAY)└─$(RESET) Create necessary directories and configure registries"
 	@echo "  $(PURPLE)create$(RESET)     $(GRAY)└─$(RESET) Create K3D cluster with all configurations"
 	@echo "  $(PURPLE)delete$(RESET)     $(GRAY)└─$(RESET) Delete cluster (keep registries)"
 	@echo "  $(PURPLE)recreate$(RESET)   $(GRAY)└─$(RESET) Recreate cluster (keep registries)"
 	@echo "  $(PURPLE)cleanup$(RESET)    $(GRAY)└─$(RESET) Delete everything including registries"
+	@echo "  $(PURPLE)start$(RESET)      $(GRAY)└─$(RESET) Start cluster"
+	@echo "  $(PURPLE)stop$(RESET)       $(GRAY)└─$(RESET) Stop cluster"
+	@echo "  $(PURPLE)status$(RESET)     $(GRAY)└─$(RESET) Show cluster and container status"
+	@echo ""
+	@echo "$(YELLOW)ArgoCD:$(RESET)"
+	@echo "  $(PURPLE)helm$(RESET)       $(GRAY)└─$(RESET) Add and update ArgoCD Helm repository"
+	@echo "  $(PURPLE)argo$(RESET)       $(GRAY)└─$(RESET) Deploy ArgoCD via Helm"
+	@echo "  $(PURPLE)port$(RESET)       $(GRAY)└─$(RESET) Port forward ArgoCD server (localhost:9999)"
+	@echo "  $(PURPLE)argo-pw$(RESET)    $(GRAY)└─$(RESET) Get ArgoCD admin password"
+	@echo "  $(PURPLE)unmanaged$(RESET)  $(GRAY)└─$(RESET) Deploy unmanaged ArgoCD applications"
+	@echo "  $(PURPLE)managed$(RESET)    $(GRAY)└─$(RESET) Deploy managed ArgoCD applications"
+	@echo ""
+	@echo "$(YELLOW)Secrets:$(RESET)"
+	@echo "  $(PURPLE)ss-key$(RESET)     $(GRAY)└─$(RESET) Get sealed secrets public key"
+	@echo "  $(PURPLE)ss$(RESET)         $(GRAY)└─$(RESET) Create sealed secrets"
+	@echo "  $(PURPLE)ss-show$(RESET)    $(GRAY)└─$(RESET) Show managed-secret-example password"
+	@echo ""
+	@echo "$(YELLOW)Testing:$(RESET)"
+	@echo "  $(PURPLE)test$(RESET)       $(GRAY)└─$(RESET) Test unmanaged applications (http://localhost:8090)"
+	@echo ""
+	@echo "$(YELLOW)Help:$(RESET)"
 	@echo "  $(PURPLE)help$(RESET)       $(GRAY)└─$(RESET) Show this help message"
 	@echo ""
-	@echo "$(RED)Example:$(RESET) make $(PURPLE)setup$(RESET)"
+	@echo "$(RED)Example:$(RESET) make $(PURPLE)init$(RESET)"
 	@echo ""
 	@echo "$(YELLOW)Environment variables:$(RESET)"
-	@echo "  $(PURPLE)CLUSTER_NAME$(RESET)              $(GRAY)└─$(RESET) Cluster name (default: local)"
+	@echo "  $(PURPLE)CLUSTER_NAME$(RESET)              $(GRAY)└─$(RESET) Cluster name (default: k3d-argocd-sandbox)"
 	@echo "  $(PURPLE)K3S_MANIFEST_PATH$(RESET)         $(GRAY)└─$(RESET) Path to manifests (default: ./k3s-manifests)"
 	@echo "  $(PURPLE)K3S_STORAGE_PATH$(RESET)          $(GRAY)└─$(RESET) Path to storage (default: ./k3s-storage)"
 	@echo "  $(PURPLE)REGISTRY_DOCKERHUB_CACHE$(RESET)  $(GRAY)└─$(RESET) Docker Hub cache path (default: ./registry/dockerhub)"
-	@echo "  $(PURPLE)REGISTRY_GHCR_CACHE$(RESET)       $(GRAY)└─$(RESET) GitHub Container Registry (GHCR) cache path (default: ./registry/ghcr)"
+	@echo "  $(PURPLE)REGISTRY_GHCR_CACHE$(RESET)       $(GRAY)└─$(RESET) GitHub Container Registry cache path (default: ./registry/ghcr)"
 	@echo "  $(PURPLE)REGISTRY_GITLAB_CACHE$(RESET)     $(GRAY)└─$(RESET) GitLab cache path (default: ./registry/gitlab)"
 	@echo "  $(PURPLE)REGISTRY_LOCAL_CACHE$(RESET)      $(GRAY)└─$(RESET) Local registry cache path (default: ./registry/local)"
 	@echo ""
 
-# Create proxy registries for Docker Hub and GitLab
+# ============================================================================
+# Cluster Management Targets
+# ============================================================================
+
+# Create necessary directories
+init-dirs:
+	@echo "Creating necessary directories..."
+	@mkdir -p $(REGISTRY_DOCKERHUB_CACHE)
+	@mkdir -p $(REGISTRY_GHCR_CACHE)
+	@mkdir -p $(REGISTRY_GITLAB_CACHE)
+	@mkdir -p $(REGISTRY_LOCAL_CACHE)
+	@mkdir -p $(K3S_STORAGE_PATH)
+	@echo "Directories created!"
+
+# Full initialization (create directories + configure registries)
+init: init-dirs setup
+	@echo "Initialization complete!"
+
+# Create proxy registries for Docker Hub, GHCR, GitLab, and local registry
 setup:
 	@echo "Setting up persistent registries..."
 	@docker network inspect k3d-network >/dev/null 2>&1 || docker network create k3d-network
@@ -120,9 +161,6 @@ cleanup:
 	@docker stop k3d-ghcr-io 2>/dev/null || true
 	@docker stop k3d-gitlab-com 2>/dev/null || true
 
-# Additional useful targets
-.PHONY: start stop status logs
-
 # Start cluster
 start:
 	@echo "Starting cluster..."
@@ -141,52 +179,67 @@ status:
 	@echo "Container status:"
 	@docker ps | awk 'NR==1 || /k3d-/'
 
-# Create directories for registry caches
-.PHONY: init-dirs init
+# ============================================================================
+# ArgoCD Targets
+# ============================================================================
 
-# Create necessary directories
-init-dirs:
-	@echo "Creating necessary directories..."
-	@mkdir -p $(REGISTRY_DOCKERHUB_CACHE)
-	@mkdir -p $(REGISTRY_GHCR_CACHE)
-	@mkdir -p $(REGISTRY_GITLAB_CACHE)
-	@mkdir -p $(REGISTRY_LOCAL_CACHE)
-	@mkdir -p $(K3S_STORAGE_PATH)
-	@echo "Directories created!"
-
-# Full initialization (create directories + configure registries)
-init: init-dirs setup
-	@echo "Initialization complete!"
-
-.PHONY: helm argo
-
+# Add and update ArgoCD Helm repository
 helm:
 	@echo "Adding ArgoCD Helm repository..."
 	helm repo add argo https://argoproj.github.io/argo-helm
 	helm repo update argo
 
+# Deploy ArgoCD via Helm
 argo:
 	@echo "Deploying ArgoCD..."
 	helm install argocd argo/argo-cd -n argocd --version 7.3.9 --create-namespace
 
+# Port forward ArgoCD server
 port:
 	@echo "Port forwarding ArgoCD server..."
 	kubectl port-forward svc/argocd-server -n argocd 9999:80
 
+# Get ArgoCD admin password
 argo-pw:
 	@echo "Getting ArgoCD admin password..."
 	kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
 
+# Deploy unmanaged ArgoCD applications
 unmanaged:
 	@echo "Deploying unmanaged applications..."
 	kubectl apply -f argocd/unmanaged/Namespace.yaml
 	kubectl apply -f argocd/unmanaged/AppProject.yaml
 	kubectl apply -f argocd/unmanaged/AppOfApps.yaml
 
+# Deploy managed ArgoCD applications
 managed:
 	@echo "Deploying managed applications..."
 	kubectl apply -f argocd/managed/bootstrap.yaml
 
+# ============================================================================
+# Secrets Targets
+# ============================================================================
+
+# Get sealed secrets public key
+ss-key:
+	@echo "Get sealed secrets public key..."
+	kubectl -n managed get secret -l sealedsecrets.bitnami.com/sealed-secrets-key -o jsonpath='{.items[0].data.tls\.crt}' | base64 -d > ./secrets/managed/ss-pub-key.pem
+
+# Create sealed secrets
+ss:
+	@echo "Creating sealed secrets..."
+	@cd $(shell pwd)/secrets && chmod +x create_secrets.sh && ./create_secrets.sh
+
+# Show managed-secret-example password
+ss-show:
+	@echo "Showing managed-secret-example secret..."
+	kubectl get secret -n managed managed-secret-example -o json | jq -r '.data.password' | base64 -d
+
+# ============================================================================
+# Testing Targets
+# ============================================================================
+
+# Test unmanaged applications
 test:
 	@echo "Testing unmanaged applications..."
 	curl http://localhost:8090/
