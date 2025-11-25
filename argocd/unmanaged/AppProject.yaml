@@ -22,3 +22,4 @@ spec:
     - '*'
   sourceRepos:
     - https://github.com/UndeadDemidov/k3d-argocd-sandbox.git
+    - https://registry.nixys.io/chartrepo/public
