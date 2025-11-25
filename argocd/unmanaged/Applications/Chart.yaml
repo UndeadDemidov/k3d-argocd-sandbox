@@ -1,6 +1,6 @@
 apiVersion: v2
-name: http-echo
-description: Applications for http-echo
+name: Applications
+description: Applications for unmanaged applications
 type: application
 version: 0.1.0
 appVersion: "1.0"
