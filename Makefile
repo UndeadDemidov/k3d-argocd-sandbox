@@ -162,20 +162,28 @@ init: init-dirs setup
 
 helm:
 	@echo "Adding ArgoCD Helm repository..."
-	@helm repo add argo https://argoproj.github.io/argo-helm
-	@helm repo update argo
+	helm repo add argo https://argoproj.github.io/argo-helm
+	helm repo update argo
 
 argo:
 	@echo "Deploying ArgoCD..."
-	@helm install argocd argo/argo-cd -n argocd --version 7.3.9 --create-namespace
-	@kubectl port-forward svc/argocd-server -n argocd 9999:80
+	helm install argocd argo/argo-cd -n argocd --version 7.3.9 --create-namespace
+
+port:
+	@echo "Port forwarding ArgoCD server..."
+	kubectl port-forward svc/argocd-server -n argocd 9999:80
 
 argo-pw:
 	@echo "Getting ArgoCD admin password..."
-	@kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+	kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
 
 unmanaged:
 	@echo "Deploying unmanaged applications..."
-	@kubectl apply -f argocd/unmanaged/Namespace.yaml
-	@kubectl apply -f argocd/unmanaged/AppProject.yaml
-	@kubectl apply -f argocd/unmanaged/AppOfApps.yaml
+	kubectl apply -f argocd/unmanaged/Repositories.yaml
+	kubectl apply -f argocd/unmanaged/Namespace.yaml
+	kubectl apply -f argocd/unmanaged/AppProject.yaml
+	kubectl apply -f argocd/unmanaged/AppOfApps.yaml
+
+test:
+	@echo "Testing unmanaged applications..."
+	curl http://localhost:8090/

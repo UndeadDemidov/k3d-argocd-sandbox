@@ -7,7 +7,7 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: http-echo
+    namespace: argocd
     server: 'https://kubernetes.default.svc'
   syncPolicy:
     automated:

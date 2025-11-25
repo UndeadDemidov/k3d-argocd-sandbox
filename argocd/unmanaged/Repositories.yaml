@@ -1,0 +1,28 @@
+---
+# Git repository for k3d-argocd-sandbox
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argo-repo-k3d-argocd-sandbox
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+type: Opaque
+stringData:
+  type: git
+  url: https://github.com/UndeadDemidov/k3d-argocd-sandbox.git
+  name: k3d-argocd-sandbox
+---
+# Helm chart repository for nixys universal chart
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argo-repo-nixys-public
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+type: Opaque
+stringData:
+  type: helm
+  url: https://registry.nixys.io/chartrepo/public
+  name: nixys-public
