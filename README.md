@@ -6,11 +6,12 @@ This project provides a complete local Kubernetes development environment using 
 
 ## Prerequisites
 
-- Docker installed and running
-- k3d installed (`brew install k3d` or follow [k3d installation guide](https://k3d.io/))
-- kubectl installed
-- helm installed
-- k9s or Lens (optional, for cluster visualization)
+- [Docker](https://docs.docker.com/) installed and running
+- [k3d](https://k3d.io/) installed (`brew install k3d` or follow [k3d installation guide](https://k3d.io/))
+- [kubectl](https://kubernetes.io/docs/tasks/tools/) installed
+- [helm](https://helm.sh/docs/) installed
+- [k9s](https://k9scli.io/) or [Lens](https://k8slens.dev/) (optional, for cluster visualization)
+- [git-crypt](https://github.com/AGWA/git-crypt) (required for secrets management)
 
 ## Deployment Process
 
@@ -327,3 +328,39 @@ This will:
 - Delete the k3d cluster
 - Stop and remove all proxy registry containers
 - Remove cluster storage (but keeps registry caches for faster rebuilds)
+
+## Documentation References
+
+### Core Tools
+
+- **[k3d](https://k3d.io/)** - Kubernetes in Docker, lightweight wrapper to run k3s in Docker
+  - Official documentation: [https://k3d.io/](https://k3d.io/)
+
+- **[k3s](https://k3s.io/)** - Lightweight Kubernetes distribution
+  - Official documentation: [https://docs.k3s.io/](https://docs.k3s.io/)
+
+- **[ArgoCD](https://argo-cd.readthedocs.io/)** - Declarative GitOps continuous delivery tool
+  - Official documentation: [https://argo-cd.readthedocs.io/](https://argo-cd.readthedocs.io/)
+
+### Kubernetes Tools
+
+- **[kubectl](https://kubernetes.io/docs/reference/kubectl/)** - Kubernetes command-line tool
+  - Official documentation: [https://kubernetes.io/docs/reference/kubectl/](https://kubernetes.io/docs/reference/kubectl/)
+  - Installation guide: [https://kubernetes.io/docs/tasks/tools/](https://kubernetes.io/docs/tasks/tools/)
+
+- **[Helm](https://helm.sh/)** - The Kubernetes Package Manager
+  - Official documentation: [https://helm.sh/docs/](https://helm.sh/docs/)
+
+### Additional Tools
+
+- **[Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets)** - Encrypted Kubernetes secrets
+  - GitHub repository: [https://github.com/bitnami-labs/sealed-secrets](https://github.com/bitnami-labs/sealed-secrets)
+
+- **[git-crypt](https://github.com/AGWA/git-crypt)** - Transparent git file encryption
+  - GitHub repository: [https://github.com/AGWA/git-crypt](https://github.com/AGWA/git-crypt)
+
+- **[k9s](https://k9scli.io/)** - Terminal UI for Kubernetes
+  - Official documentation: [https://k9scli.io/](https://k9scli.io/)
+
+- **[Lens](https://k8slens.dev/)** - Kubernetes IDE
+  - Official documentation: [https://docs.k8slens.dev/](https://docs.k8slens.dev/)
