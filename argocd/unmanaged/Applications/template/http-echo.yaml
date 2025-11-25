@@ -21,7 +21,7 @@ spec:
     targetRevision: 2.8.3
     helm:
       releaseName: http-echo
-      valuesObject:
+      values: |
         releasePrefix: "-"
 
         services:
