@@ -5,9 +5,9 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: {{ .Values.project }}
+  project: default
   destination:
-    name: {{ .Values.cluster }}
+    server: {{ .Values.server }}
     namespace: {{ .Values.ns }}
   syncPolicy:
     automated:
