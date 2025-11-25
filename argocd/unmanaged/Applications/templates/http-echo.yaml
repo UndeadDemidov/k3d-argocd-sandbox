@@ -22,7 +22,7 @@ spec:
     targetRevision: 2.8.3
     helm:
       releaseName: http-echo
-      values: |
+      valuesObject:
         releasePrefix: "-"
 
         services:
@@ -36,7 +36,8 @@ spec:
                 protocol: TCP
 
         deployments:
-          containers:
+          http-echo:
+            containers:
             - name: http-echo
               image: hashicorp/http-echo
               imagePullPolicy: IfNotPresent
@@ -45,4 +46,3 @@ spec:
               - containerPort: 5678
                 name: http
                 protocol: TCP
-
