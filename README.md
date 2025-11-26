@@ -10,6 +10,10 @@ This project provides a complete local Kubernetes development environment using 
 - [k3d](https://k3d.io/) installed (`brew install k3d` or follow [k3d installation guide](https://k3d.io/))
 - [kubectl](https://kubernetes.io/docs/tasks/tools/) installed
 - [helm](https://helm.sh/docs/) installed
+- [kubeseal](https://github.com/bitnami-labs/sealed-secrets) installed (required for creating sealed secrets)
+  - macOS: `brew install kubeseal`
+  - Linux: Download from [releases page](https://github.com/bitnami-labs/sealed-secrets/releases)
+  - Or install via Krew: `kubectl krew install sealed-secrets`
 - [k9s](https://k9scli.io/) or [Lens](https://k8slens.dev/) (optional, for cluster visualization)
 - [git-crypt](https://github.com/AGWA/git-crypt) (required for secrets management)
 
@@ -366,6 +370,7 @@ This will:
 
 - **[Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets)** - Encrypted Kubernetes secrets
   - GitHub repository: [https://github.com/bitnami-labs/sealed-secrets](https://github.com/bitnami-labs/sealed-secrets)
+  - kubeseal CLI: Used to encrypt secrets using the Sealed Secrets controller public key
 
 - **[git-crypt](https://github.com/AGWA/git-crypt)** - Transparent git file encryption
   - GitHub repository: [https://github.com/AGWA/git-crypt](https://github.com/AGWA/git-crypt)
