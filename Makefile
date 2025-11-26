@@ -2,7 +2,7 @@
 
 # Variables
 CLUSTER_NAME ?= k3d-argocd-sandbox
-K3S_MANIFEST_PATH := $(shell pwd)/k3s-manifests
+K3S_MANIFEST_PATH := $(shell pwd)/k3s
 K3S_STORAGE_PATH := $(shell pwd)/k3s-storage
 REGISTRY_DOCKERHUB_CACHE := $(shell pwd)/registry/dockerhub
 REGISTRY_GHCR_CACHE := $(shell pwd)/registry/ghcr
@@ -66,7 +66,7 @@ help:
 	@echo ""
 	@echo "$(YELLOW)Environment variables:$(RESET)"
 	@echo "  $(PURPLE)CLUSTER_NAME$(RESET)              $(GRAY)└─$(RESET) Cluster name (default: k3d-argocd-sandbox)"
-	@echo "  $(PURPLE)K3S_MANIFEST_PATH$(RESET)         $(GRAY)└─$(RESET) Path to manifests (default: ./k3s-manifests)"
+	@echo "  $(PURPLE)K3S_MANIFEST_PATH$(RESET)         $(GRAY)└─$(RESET) Path to k3s manifests (default: ./k3s)"
 	@echo "  $(PURPLE)K3S_STORAGE_PATH$(RESET)          $(GRAY)└─$(RESET) Path to storage (default: ./k3s-storage)"
 	@echo "  $(PURPLE)REGISTRY_DOCKERHUB_CACHE$(RESET)  $(GRAY)└─$(RESET) Docker Hub cache path (default: ./registry/dockerhub)"
 	@echo "  $(PURPLE)REGISTRY_GHCR_CACHE$(RESET)       $(GRAY)└─$(RESET) GitHub Container Registry cache path (default: ./registry/ghcr)"
