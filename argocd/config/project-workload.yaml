@@ -18,6 +18,7 @@ spec:
       kind: '*'
   roles:
     - name: allow-all
+      description: Role with full access to all applications in the workload project
       policies:
         - p, proj:workload:allow-all, applications, *, workload/*, allow
   sourceNamespaces:

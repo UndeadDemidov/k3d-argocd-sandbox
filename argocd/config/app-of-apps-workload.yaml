@@ -9,7 +9,7 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: default
+  project: workload
   source:
     repoURL: 'https://github.com/UndeadDemidov/k3d-argocd-sandbox.git'
     targetRevision: library
@@ -21,7 +21,7 @@ spec:
         - name: cluster
           value: in-cluster
         - name: project
-          value: default
+          value: workload
         - name: ns
           value: workload
   destination:
