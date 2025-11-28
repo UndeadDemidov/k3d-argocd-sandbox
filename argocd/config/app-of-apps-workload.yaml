@@ -7,23 +7,21 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: managed
+  project: workload
   source:
     repoURL: 'https://github.com/UndeadDemidov/k3d-argocd-sandbox.git'
-    targetRevision: main
-    path: argocd/managed/workload
+    targetRevision: library
+    path: argocd/workload
     helm:
       parameters:
-        - name: type
-          value: managed
         - name: server
           value: https://kubernetes.default.svc
         - name: cluster
           value: in-cluster
         - name: project
-          value: managed
+          value: workload
         - name: ns
-          value: managed
+          value: workload
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

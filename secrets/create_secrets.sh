@@ -30,8 +30,6 @@ process_secret() {
 
   local json=$(yq eval -o json '.' config.yaml)
   local namespace=$(echo $json | jq -r '.namespace')
-  local cluster=$(echo $json | jq -r '.cluster')
-  local project=$(echo $json | jq -r '.project')
   local path=$(echo $json | jq -r '.path')
 
   resources_json="[]"
@@ -119,8 +117,6 @@ process_secret() {
   log "Create ArgoCD manifest.yaml"
   cp -f "$PRJ_DIR/manifest.yaml" ./manifest.yaml
   sed -i '' "s|RELEASE_NAME|$secret_name|g" manifest.yaml
-  sed -i '' "s|ARGOCD_PROJECT|$project|g" manifest.yaml
-  sed -i '' "s|CLUSTER_ENV|$cluster|g" manifest.yaml
   sed -i '' "s|KUBE_NAMESPACE|$namespace|g" manifest.yaml
 
   log "Inject SealedSecret resources.yaml in ArgoCD manifest.yaml"

@@ -10,12 +10,10 @@ spec:
   project: default
   source:
     repoURL: 'https://github.com/UndeadDemidov/k3d-argocd-sandbox.git'
-    targetRevision: main
-    path: argocd/managed/self
+    targetRevision: library
+    path: argocd/self
     helm:
       parameters:
-        - name: type
-          value: managed
         - name: server
           value: https://kubernetes.default.svc
         - name: cluster

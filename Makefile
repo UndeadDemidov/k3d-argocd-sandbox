@@ -21,7 +21,7 @@ RESET = \033[0m
 
 # All targets
 .PHONY: help init init-dirs setup create delete recreate cleanup start stop status \
-	helm argo port argo-pw unmanaged managed test ss-key ss ss-show
+	helm argo port argo-pw argo-bs test ss-key ss
 
 # Default target - show help
 help:
@@ -48,16 +48,14 @@ help:
 	@echo "  $(PURPLE)argo$(RESET)       $(GRAY)└─$(RESET) Deploy ArgoCD via Helm"
 	@echo "  $(PURPLE)port$(RESET)       $(GRAY)└─$(RESET) Port forward ArgoCD server (localhost:9999)"
 	@echo "  $(PURPLE)argo-pw$(RESET)    $(GRAY)└─$(RESET) Get ArgoCD admin password"
-	@echo "  $(PURPLE)unmanaged$(RESET)  $(GRAY)└─$(RESET) Deploy unmanaged ArgoCD applications"
-	@echo "  $(PURPLE)managed$(RESET)    $(GRAY)└─$(RESET) Deploy managed ArgoCD applications"
+	@echo "  $(PURPLE)argo-bs$(RESET)    $(GRAY)└─$(RESET) Bootstrap ArgoCD"
 	@echo ""
 	@echo "$(YELLOW)Secrets:$(RESET)"
 	@echo "  $(PURPLE)ss-key$(RESET)     $(GRAY)└─$(RESET) Get sealed secrets public key"
 	@echo "  $(PURPLE)ss$(RESET)         $(GRAY)└─$(RESET) Create sealed secrets"
-	@echo "  $(PURPLE)ss-show$(RESET)    $(GRAY)└─$(RESET) Show managed-secret-example password"
 	@echo ""
 	@echo "$(YELLOW)Testing:$(RESET)"
-	@echo "  $(PURPLE)test$(RESET)       $(GRAY)└─$(RESET) Test unmanaged applications (http://localhost:8090)"
+	@echo "  $(PURPLE)test$(RESET)       $(GRAY)└─$(RESET) Test applications (http://localhost:8090)"
 	@echo ""
 	@echo "$(YELLOW)Help:$(RESET)"
 	@echo "  $(PURPLE)help$(RESET)       $(GRAY)└─$(RESET) Show this help message"
@@ -208,7 +206,12 @@ helm:
 # Deploy ArgoCD via Helm
 argo:
 	@echo "Deploying ArgoCD..."
-	helm install argocd argo/argo-cd -n argocd --version 7.3.9 --create-namespace
+	helm install argocd argo/argo-cd -n argocd --version 9.1.4 --create-namespace
+
+# Bootstrap ArgoCD
+argo-bs:
+	@echo "Bootstrap ArgoCD..."
+	kubectl apply -f argocd/bootstrap.yaml
 
 # Port forward ArgoCD server
 port:
@@ -220,18 +223,6 @@ argo-pw:
 	@echo "Getting ArgoCD admin password..."
 	kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
 
-# Deploy unmanaged ArgoCD applications
-unmanaged:
-	@echo "Deploying unmanaged applications..."
-	kubectl apply -f argocd/unmanaged/Namespace.yaml
-	kubectl apply -f argocd/unmanaged/AppProject.yaml
-	kubectl apply -f argocd/unmanaged/AppOfApps.yaml
-
-# Deploy managed ArgoCD applications
-managed:
-	@echo "Deploying managed applications..."
-	kubectl apply -f argocd/managed/bootstrap.yaml
-
 # ============================================================================
 # Secrets Targets
 # ============================================================================
@@ -239,23 +230,18 @@ managed:
 # Get sealed secrets public key
 ss-key:
 	@echo "Get sealed secrets public key..."
-	kubectl -n managed get secret -l sealedsecrets.bitnami.com/sealed-secrets-key -o jsonpath='{.items[0].data.tls\.crt}' | base64 -d > ./secrets/managed/ss-pub-key.pem
+	kubectl -n workload get secret -l sealedsecrets.bitnami.com/sealed-secrets-key -o jsonpath='{.items[0].data.tls\.crt}' | base64 -d > ./secrets/in-cluster/ss-pub-key.pem
 
 # Create sealed secrets
 ss:
 	@echo "Creating sealed secrets..."
 	@cd $(shell pwd)/secrets && chmod +x create_secrets.sh && ./create_secrets.sh
 
-# Show managed-secret-example password
-ss-show:
-	@echo "Showing managed-secret-example secret..."
-	kubectl get secret -n managed managed-secret-example -o json | jq -r '.data.password' | base64 -d
-
 # ============================================================================
 # Testing Targets
 # ============================================================================
 
-# Test unmanaged applications
+# Test applications
 test:
-	@echo "Testing unmanaged applications..."
+	@echo "Testing applications..."
 	curl http://localhost:8090/

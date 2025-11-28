@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: unmanaged
+  name: workload
   namespace: argocd
 spec:
   clusterResourceWhitelist:
@@ -17,9 +17,8 @@ spec:
   roles:
     - name: allow-all
       policies:
-        - p, proj:unmanaged:allow-all, applications, *, unmanaged/*, allow
+        - p, proj:workload:allow-all, applications, *, workload/*, allow
   sourceNamespaces:
     - '*'
   sourceRepos:
-    - https://github.com/UndeadDemidov/k3d-argocd-sandbox.git
-    - https://registry.nixys.io/chartrepo/public
+    - '*'
