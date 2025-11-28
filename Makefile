@@ -206,7 +206,12 @@ helm:
 # Deploy ArgoCD via Helm
 argo:
 	@echo "Deploying ArgoCD..."
-	helm install argocd argo/argo-cd -n argocd --version 9.1.4 --create-namespace
+	helm install argocd argo/argo-cd -n argocd --version 9.1.4 --create-namespace -f argocd/values.yaml
+
+# Update ArgoCD with new values
+argo-update:
+	@echo "Updating ArgoCD..."
+	helm upgrade argocd argo/argo-cd -n argocd --version 9.1.4 -f argocd/values.yaml
 
 # Bootstrap ArgoCD
 argo-bs:
