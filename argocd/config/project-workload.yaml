@@ -3,6 +3,8 @@ kind: AppProject
 metadata:
   name: workload
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   clusterResourceWhitelist:
     - group: '*'

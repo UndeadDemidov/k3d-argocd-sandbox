@@ -4,10 +4,12 @@ kind: Application
 metadata:
   name: workload
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: workload
+  project: default
   source:
     repoURL: 'https://github.com/UndeadDemidov/k3d-argocd-sandbox.git'
     targetRevision: library
@@ -19,7 +21,7 @@ spec:
         - name: cluster
           value: in-cluster
         - name: project
-          value: workload
+          value: default
         - name: ns
           value: workload
   destination:
