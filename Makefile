@@ -21,7 +21,7 @@ RESET = \033[0m
 
 # All targets
 .PHONY: help init init-dirs setup create delete recreate cleanup start stop status \
-	helm argo port argo-pw argo-bs test ss-key ss
+	helm argo port argo-pw grafana-pw argo-bs test ss-key ss
 
 # Default target - show help
 help:
@@ -47,8 +47,9 @@ help:
 	@echo "  $(PURPLE)helm$(RESET)       $(GRAY)└─$(RESET) Add and update ArgoCD Helm repository"
 	@echo "  $(PURPLE)argo$(RESET)       $(GRAY)└─$(RESET) Deploy ArgoCD via Helm"
 	@echo "  $(PURPLE)port$(RESET)       $(GRAY)└─$(RESET) Port forward ArgoCD server (localhost:9999)"
-	@echo "  $(PURPLE)argo-pw$(RESET)    $(GRAY)└─$(RESET) Get ArgoCD admin password"
 	@echo "  $(PURPLE)argo-bs$(RESET)    $(GRAY)└─$(RESET) Bootstrap ArgoCD"
+	@echo "  $(PURPLE)argo-pw$(RESET)    $(GRAY)└─$(RESET) Get ArgoCD admin password"
+	@echo "  $(PURPLE)grafana-pw$(RESET) $(GRAY)└─$(RESET) Get Grafana admin password"
 	@echo ""
 	@echo "$(YELLOW)Secrets:$(RESET)"
 	@echo "  $(PURPLE)ss-key$(RESET)     $(GRAY)└─$(RESET) Get sealed secrets public key"
@@ -208,11 +209,6 @@ argo:
 	@echo "Deploying ArgoCD..."
 	helm install argocd argo/argo-cd -n argocd --version 9.1.4 --create-namespace -f argocd/values.yaml
 
-# Update ArgoCD with new values
-argo-update:
-	@echo "Updating ArgoCD..."
-	helm upgrade argocd argo/argo-cd -n argocd --version 9.1.4 -f argocd/values.yaml
-
 # Bootstrap ArgoCD
 argo-bs:
 	@echo "Bootstrap ArgoCD..."
@@ -227,6 +223,11 @@ port:
 argo-pw:
 	@echo "Getting ArgoCD admin password..."
 	kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+
+# Get Grafana admin password
+grafana-pw:
+	@echo "Getting Grafana admin password..."
+	kubectl get secret -n workload vica-metrics-stack-grafana -o json | jq -r '.data["admin-password"]' | base64 -d
 
 # ============================================================================
 # Secrets Targets
