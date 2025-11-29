@@ -1,0 +1,64 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vica-metrics-stack
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.project }}
+  destination:
+    name: "{{ .Values.cluster }}"
+    namespace: {{ .Values.ns }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      # https://argo-cd.readthedocs.io/en/stable/user-guide/sync-options/#respect-ignore-difference-configs
+      # argocd must also ignore difference during apply stage
+      # otherwise it ll silently override changes and cause a problem
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: victoria-metrics-operator-validation
+      namespace: {{ .Values.ns }}
+      jsonPointers:
+        - /data
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: victoria-metrics-operator-admission
+      jqPathExpressions:
+      - '.webhooks[]?.clientConfig.caBundle'
+  source:
+    repoURL: https://victoriametrics.github.io/helm-charts/
+    chart: victoria-metrics-k8s-stack
+    targetRevision: 0.63.4
+    helm:
+      valuesObject:
+        fullnameOverride: "vm-stack"
+
+        grafana:
+          testFramework:
+            enabled: false
+
+          service:
+            type: NodePort
+            nodePort: 30030
+
+          plugins:
+            - victoriametrics-metrics-datasource
+            - victoriametrics-logs-datasource
+        
+        defaultDatasources:
+          extra:
+            - name: VictoriaLogs
+              type: victoriametrics-logs-datasource
+              access: proxy
+              url: http://vl-single-server.{{ .Values.ns }}.svc:9428
+              isDefault: false
+
+        defaultDashboards:
+          annotations:
+            argocd.argoproj.io/sync-options: ServerSideApply=true
