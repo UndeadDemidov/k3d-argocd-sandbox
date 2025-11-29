@@ -60,7 +60,9 @@ spec:
                 Path /var/log/containers/*.log
                 multiline.parser docker, cri
                 Tag kube.*
-                Mem_Buf_Limit 5MB
+                Buffer_Chunk_Size 128k
+                Buffer_Max_Size 256k
+                Mem_Buf_Limit 50MB
                 Skip_Long_Lines On
 
             [INPUT]
@@ -86,7 +88,7 @@ spec:
                 Match *
                 host vica-logs-single-server.{{ .Values.ns }}.svc
                 port 9428
-                uri /insert/jsonline?_stream_fields=stream&_msg_field=log&_time_field=date&debug=1
+                uri /insert/jsonline?_stream_fields=stream&_msg_field=log&_time_field=date
                 format json_lines
                 json_date_format iso8601
 
