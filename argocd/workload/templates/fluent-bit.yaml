@@ -90,7 +90,7 @@ spec:
                 Match *
                 host vl-single-server.{{ .Values.ns }}.svc
                 port 9428
-                uri /insert/jsonline?_stream_fields=stream&_msg_field=log&_time_field=date&debug=1
+                uri /insert/jsonline?_stream_fields=stream&_msg_field=log&_time_field=date
                 format json_lines
                 json_date_format iso8601
 
