@@ -20,6 +20,7 @@ spec:
     chart: victoria-logs-single
     targetRevision: 0.11.17
     helm:
+      releaseName: "vica"
       valuesObject:
         server:
           retentionPeriod: 4d
