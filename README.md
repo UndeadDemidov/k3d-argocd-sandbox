@@ -2,7 +2,7 @@
 
 A sandbox environment with k3d and ArgoCD to learn and experiment with GitOps capabilities.
 
-This project provides a complete local Kubernetes development environment using k3d (Kubernetes in Docker) with ArgoCD for continuous deployment. It includes proxy registries for Docker Hub, GHCR, Quay.io, and GitLab, as well as examples of both managed and unmanaged ArgoCD applications.
+This project provides a complete local Kubernetes development environment using k3d (Kubernetes in Docker) with ArgoCD for continuous deployment. It includes proxy registries for Docker Hub, GHCR, Quay.io, and GitLab, as well as a self-managed ArgoCD setup using the App of Apps pattern with workload applications including monitoring, logging, and secrets management.
 
 ## Prerequisites
 
@@ -86,7 +86,7 @@ make argo
 **What it does:**
 
 - Adds the ArgoCD Helm repository
-- Installs ArgoCD version 7.3.9 in the `argocd` namespace
+- Installs ArgoCD version 9.1.4 in the `argocd` namespace
 - Creates the `argocd` namespace if it doesn't exist
 
 **Result:**
@@ -140,67 +140,33 @@ make argo-pw
 - Username: `admin`
 - Password: (the output from this command)
 
-### Step 7: Deploy Unmanaged Applications
+### Step 7: Bootstrap ArgoCD Applications
 
 ```sh
-make unmanaged
-```
-
-**What it does:**
-
-- Creates the `unmanaged` namespace
-- Creates an ArgoCD AppProject named `unmanaged`
-- Deploys an Application of Applications (App of Apps) pattern
-- The App of Apps references the `argocd/unmanaged/Applications` directory in the Git repository
-
-**Result:**
-
-- ArgoCD Application `unmanaged` is created in the `argocd` namespace
-- ArgoCD will sync applications from the Git repository
-- Applications will be deployed to the `unmanaged` namespace
-- You can see the sync status in the ArgoCD UI
-
-### Step 8: Test Unmanaged Applications
-
-```sh
-make test
-```
-
-**What it does:**
-
-- Tests the unmanaged applications by making a curl request to `http://localhost:8090/`
-
-**Result:**
-
-- If successful, returns a response from the http-echo service
-- The service is accessible on port 8090 (mapped from cluster port 30090)
-- This confirms that the unmanaged applications are working correctly
-
-### Step 9: Deploy Managed Applications
-
-```sh
-make managed
+make argo-bs
 ```
 
 **What it does:**
 
 - Deploys the bootstrap Application that uses the App of Apps pattern
-- The bootstrap Application references `argocd/managed/config` in the Git repository
-- This triggers the deployment of managed ArgoCD applications including:
-  - Self-managed ArgoCD configuration
-  - Workload applications with sealed secrets
+- The bootstrap Application references `argocd/config` in the Git repository (branch: `library`)
+- This triggers the deployment of:
+  - **Self-managed ArgoCD configuration** (`argocd/self`) - ArgoCD managing itself
+  - **Workload applications** (`argocd/workload`) - Monitoring, logging, and secrets management stack
 
 **Result:**
 
-- ArgoCD Application `argocd-bootstrap-managed` is created
-- ArgoCD will sync and deploy managed applications
-- The App of Apps pattern will create child applications
+- ArgoCD Application `argocd-bootstrap` is created in the `argocd` namespace
+- ArgoCD will sync and deploy applications using the App of Apps pattern
+- The following workload components will be deployed:
+  - **Sealed Secrets Controller** - For managing encrypted secrets in Git
+  - **Reloader** - Automatically reload pods when ConfigMaps or Secrets change
+  - **Fluent Bit** - Log collection and forwarding
+  - **Victoria Logs Single** - Centralized log aggregation
+  - **Victoria Metrics Stack** - Metrics collection and visualization (includes Grafana)
 - You can monitor the deployment in the ArgoCD UI
-- Now you can log in to ArgoCD UI at [http://localhost:8080](http://localhost:8080)
 
-> Repeat `make port` if you want to log in to ArgoCD UI at [http://localhost:9999](http://localhost:9999)
-
-### Step 10: Set Up Sealed Secrets
+### Step 8: Set Up Sealed Secrets
 
 ```sh
 make ss-key
@@ -208,16 +174,16 @@ make ss-key
 
 **What it does:**
 
-- Retrieves the public key from the Sealed Secrets controller
-- Saves it to `secrets/managed/ss-pub-key.pem`
+- Retrieves the public key from the Sealed Secrets controller running in the `workload` namespace
+- Saves it to `secrets/in-cluster/ss-pub-key.pem`
 - This key is used to encrypt secrets before committing them to Git
 
 **Result:**
 
-- Public key file `secrets/managed/ss-pub-key.pem` is created
+- Public key file `secrets/in-cluster/ss-pub-key.pem` is created
 - This key is safe to commit to Git (it's public and used for encryption only)
 
-### Step 11: Create Sealed Secrets
+### Step 9: Create Sealed Secrets
 
 ```sh
 git-crypt unlock
@@ -227,7 +193,7 @@ make ss
 **What it does:**
 
 - Executes the `secrets/create_secrets.sh` script
-- Reads secrets from the `secrets/managed/workload/vault/` directory
+- Reads secrets from the `secrets/in-cluster/workload/vault/` directory
 - Encrypts them using the Sealed Secrets public key
 - Creates SealedSecret resources that can be safely committed to Git
 
@@ -237,44 +203,63 @@ make ss
 - The Sealed Secrets controller will decrypt them and create regular Kubernetes secrets
 - Secrets are now managed through GitOps
 
-### Step 12: Verify Sealed Secrets
+### Step 10: Access Grafana
+
+After the Victoria Metrics Stack is deployed, you can access Grafana:
 
 ```sh
-make ss-show
+make grafana-pw
 ```
 
 **What it does:**
 
-- Retrieves the `managed-secret-example` secret from the `managed` namespace
-- Decodes and displays the password value
+- Retrieves the Grafana admin password from the `workload` namespace
 
 **Result:**
 
-- Shows the decrypted password from the secret
-- Confirms that Sealed Secrets are working correctly
-- The secret was created from the SealedSecret resource
+- Displays the Grafana admin password
+- Access Grafana at [http://localhost:3000](http://localhost:3000)
+- Username: `admin`
+- Password: (the output from this command)
 
 ## Architecture Overview
 
 ### Cluster Components
 
-- **K3D Cluster**: Single-node Kubernetes cluster (1 server, 0 agents)
-- **Proxy Registries**: Local caching proxies for faster image pulls
-- **ArgoCD**: GitOps continuous deployment tool
+- **K3D Cluster**: Single-node Kubernetes cluster (1 server, 0 agents) running k3s v1.31.5
+- **Proxy Registries**: Local caching proxies for faster image pulls:
+  - Docker Hub (port 5000)
+  - GitHub Container Registry (port 5001)
+  - Quay.io (port 5002)
+  - GitLab (port 5005)
+  - Local registry (port 5010)
+- **ArgoCD**: GitOps continuous deployment tool (version 9.1.4)
 - **Sealed Secrets**: Encrypted secrets that can be safely stored in Git
 
 ### Application Patterns
 
-1. **Unmanaged Applications**: Applications deployed via ArgoCD but not managed by ArgoCD itself
-2. **Managed Applications**: Applications deployed using the App of Apps pattern, including self-managed ArgoCD configuration
+The project uses the **App of Apps** pattern with two main application groups:
+
+1. **Self-Managed ArgoCD** (`argocd/self`): ArgoCD managing its own configuration
+2. **Workload Applications** (`argocd/workload`): Production-ready stack including:
+   - **Sealed Secrets Controller**: Encrypted secrets management
+   - **Reloader**: Automatic pod reloading on ConfigMap/Secret changes
+   - **Fluent Bit**: Log collection and forwarding
+   - **Victoria Logs Single**: Centralized log aggregation and storage
+   - **Victoria Metrics Stack**: Metrics collection, storage, and visualization (includes Grafana)
 
 ### Port Mappings
 
 - `80`: HTTP traffic (loadbalancer)
 - `443`: HTTPS traffic (loadbalancer)
+- `3000`: Grafana (mapped from 30030)
+- `5000`: Docker Hub registry proxy
+- `5001`: GHCR registry proxy
+- `5002`: Quay.io registry proxy
+- `5005`: GitLab registry proxy
+- `5010`: Local registry
 - `8080`: Frontend service (mapped from 30080)
 - `8090`: Backend service (mapped from 30090)
-- `3000`: Grafana (mapped from 30030)
 - `9999`: ArgoCD UI port-forward
 
 ## Useful Commands
@@ -295,8 +280,17 @@ make cleanup     # Delete everything including registries
 ```sh
 make helm        # Add/update ArgoCD Helm repository
 make argo        # Deploy ArgoCD
+make argo-bs     # Bootstrap ArgoCD applications (App of Apps)
 make port        # Port-forward ArgoCD UI
-make argo-pw     # Get admin password
+make argo-pw     # Get ArgoCD admin password
+make grafana-pw  # Get Grafana admin password
+```
+
+### Secrets Management
+
+```sh
+make ss-key      # Get sealed secrets public key
+make ss          # Create sealed secrets from encrypted files
 ```
 
 ## Troubleshooting
@@ -328,6 +322,14 @@ kubectl get nodes
 ```sh
 kubectl get svc -n argocd
 make port
+```
+
+### Applications not syncing
+
+```sh
+kubectl get applications -n argocd
+kubectl describe application <app-name> -n argocd
+kubectl get pods -n workload
 ```
 
 ## Cleanup
