@@ -22,6 +22,8 @@ spec:
     helm:
       releaseName: "fluentbit"
       valuesObject:
+        nameOverride: fluentbit
+        
         testFramework:
           enabled: false
         annotations:
