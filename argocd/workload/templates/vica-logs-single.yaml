@@ -22,7 +22,7 @@ spec:
     helm:
       releaseName: "vica"
       valuesObject:
-        nameOverride: "logs-single"
+        fullnameOverride: "vl-single"
         server:
           retentionPeriod: 4d
           persistentVolume:
