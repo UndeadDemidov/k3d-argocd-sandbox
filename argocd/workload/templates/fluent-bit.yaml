@@ -15,8 +15,27 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-  source:
-    repoURL: https://fluent.github.io/helm-charts
+  sources:
+  - repoURL: https://registry.nixys.io/chartrepo/public
+    chart: nxs-universal-chart
+    targetRevision: 2.8.3
+    helm:
+      releaseName: fluentbit
+      valuesObject:
+        releasePrefix: "-"
+
+        vmServiceScrapes:
+          fluentbit:
+            endpoints:
+              - port: http
+                path: /api/v2/metrics/prometheus
+              - port: metrics
+                path: /metrics
+            extraSelectorLabels:
+              app.kubernetes.io/instance: fluentbit
+              app.kubernetes.io/name: fluentbit
+
+  - repoURL: https://fluent.github.io/helm-charts
     chart: fluent-bit
     targetRevision: 0.54.0
     helm:
@@ -29,26 +48,14 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
 
+        dashboards:
+          enabled: true
+
         extraPorts:
           - port: 2021
             containerPort: 2021
             protocol: TCP
             name: metrics
-
-        extraObjects:
-          - apiVersion: operator.victoriametrics.com/v1beta1
-            kind: VMServiceScrape
-            metadata:
-              name: fluentbit
-              namespace: {{ .Values.ns }}
-            spec:
-              endpoints:
-                - port: fluentbit
-                  path: /api/v2/metrics/prometheus
-              selector:
-                matchLabels:
-                  app.kubernetes.io/instance: fluentbit
-                  app.kubernetes.io/name: fluentbit
 
         daemonSetVolumes:
           - name: varlog
