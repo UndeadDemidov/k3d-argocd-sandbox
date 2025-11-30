@@ -29,3 +29,9 @@ spec:
             size: 4Gi
           annotations:
             reloader.stakater.com/auto: "true"
+
+          vmServiceScrape:
+            enabled: true
+
+        dashboards:
+          enabled: true
