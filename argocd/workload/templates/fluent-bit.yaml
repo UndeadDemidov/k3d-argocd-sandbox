@@ -24,6 +24,19 @@ spec:
       valuesObject:
         releasePrefix: "-"
 
+        # unfortunatelly, this doesn't work right now, so we're using extraDeploy instead
+        # waiting for release https://github.com/nixys/nxs-universal-chart/pull/89
+        # vmServiceScrapes:
+        #   fluentbit:
+        #     endpoints:
+        #       - port: http
+        #         path: /api/v2/metrics/prometheus
+        #       - port: metrics
+        #         path: /metrics
+        #     extraSelectorLabels:
+        #       app.kubernetes.io/instance: fluentbit
+        #       app.kubernetes.io/name: fluentbit
+        
         extraDeploy:
           vmSrvScrape: |-
             kind: VMServiceScrape
