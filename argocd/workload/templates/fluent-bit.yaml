@@ -87,7 +87,7 @@ spec:
                 Name parser
                 Match kube.*
                 Key_Name log
-                Parser level_extractor
+                Parser level_extractor,level_bracket_prefix,level_bracket_with_date
                 Reserve_Data On
                 Preserve_Key On
 
@@ -119,4 +119,16 @@ spec:
                 Name level_extractor
                 Format regex
                 Regex .*(lvl|level)=(?<level>[a-zA-Z]+)
+                Time_Keep Off
+
+            [PARSER]
+                Name level_bracket_prefix
+                Format regex
+                Regex ^\[(?<level>[A-Z]+)\]\s+(?<message>.*)
+                Time_Keep Off
+
+            [PARSER]
+                Name level_bracket_with_date
+                Format regex
+                Regex ^\[[^\]]+\]\s+\[\s*(?<level>\w+)\]\s+(?<message>.*)
                 Time_Keep Off
