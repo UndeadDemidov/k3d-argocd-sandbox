@@ -83,14 +83,22 @@ spec:
                 K8S-Logging.Parser On
                 K8S-Logging.Exclude On
 
+            [FILTER]
+                Name parser
+                Match kube.*
+                Key_Name log
+                Parser level_extractor
+                Reserve_Data On
+                Preserve_Key On
+
           ## https://docs.fluentbit.io/manual/pipeline/outputs
           outputs: |
-            [Output]
+            [OUTPUT]
                 Name http
                 Match *
                 host vl-single-server.{{ .Values.ns }}.svc
                 port 9428
-                uri /insert/jsonline?_stream_fields=stream&_msg_field=log&_time_field=date
+                uri /insert/jsonline?_stream_fields=stream,level&_msg_field=log&_time_field=date
                 format json_lines
                 json_date_format iso8601
 
@@ -106,3 +114,9 @@ spec:
                 Time_Keep Off
                 Time_Key time
                 Time_Format %Y-%m-%dT%H:%M:%S.%L
+
+            [PARSER]
+                Name level_extractor
+                Format regex
+                Regex .*(lvl|level)=(?<level>[a-zA-Z]+)
+                Time_Keep Off
