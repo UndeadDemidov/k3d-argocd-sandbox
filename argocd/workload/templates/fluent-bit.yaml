@@ -96,6 +96,10 @@ spec:
                         record["pod"] = k8s["pod_name"]
                     end
                 end
+                return 1, timestamp, record
+            end
+          lowercase-level.lua: |
+            function lowercase_level(tag, timestamp, record)
                 if record["level"] then
                     record["level"] = string.lower(record["level"])
                 end
@@ -162,6 +166,24 @@ spec:
                 Reserve_Data On
                 Preserve_Key On
 
+            [FILTER]
+                Name lua
+                Match kube.*
+                Script /fluent-bit/scripts/lowercase-level.lua
+                Call lowercase_level
+
+            [FILTER]
+                Name log_to_metrics
+                Match kube.*
+                tag metrics.error
+                metric_mode counter
+                metric_name logs_error_count
+                metric_description Total number of log entries with level=error
+                regex level ^error$
+                label_field namespace
+                label_field container
+                label_field image
+                label_field pod
 
           ## https://docs.fluentbit.io/manual/pipeline/outputs
           outputs: |
