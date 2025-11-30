@@ -84,6 +84,14 @@ spec:
                 K8S-Logging.Exclude On
 
             [FILTER]
+                Name modify
+                Match kube.*
+                Rename kubernetes.container_image image
+                Rename kubernetes.container_name container
+                Rename kubernetes.namespace_name namespace
+                Rename kubernetes.pod_name pod
+
+            [FILTER]
                 Name parser
                 Match kube.*
                 Key_Name log
