@@ -33,7 +33,7 @@ spec:
           - port: 2021
             containerPort: 2021
             protocol: TCP
-            name: fluentbit-metrics
+            name: metrics
 
         extraObjects:
           - apiVersion: operator.victoriametrics.com/v1beta1
