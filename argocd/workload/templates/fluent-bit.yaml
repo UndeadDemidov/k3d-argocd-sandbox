@@ -29,13 +29,11 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
 
-        service:
-          annotations: {}
-          ports:
-            - name: metrics
-              port: 2021
-              protocol: TCP
-              targetPort: 2021
+        extraPorts:
+          - port: 2021
+            containerPort: 2021
+            protocol: TCP
+            name: fluentbit-metrics
 
         extraObjects:
           - apiVersion: operator.victoriametrics.com/v1beta1
@@ -46,6 +44,7 @@ spec:
             spec:
               endpoints:
                 - port: fluentbit
+                  path: /api/v2/metrics/prometheus
               selector:
                 matchLabels:
                   app.kubernetes.io/instance: fluentbit
