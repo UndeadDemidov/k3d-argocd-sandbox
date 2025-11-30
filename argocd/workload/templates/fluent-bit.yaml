@@ -87,7 +87,23 @@ spec:
                 Name parser
                 Match kube.*
                 Key_Name log
-                Parser level_extractor,level_bracket_prefix,level_bracket_with_date
+                Parser level_extractor
+                Reserve_Data On
+                Preserve_Key On
+
+            [FILTER]
+                Name parser
+                Match kube.*
+                Key_Name log
+                Parser level_bracket_prefix
+                Reserve_Data On
+                Preserve_Key On
+
+            [FILTER]
+                Name parser
+                Match kube.*
+                Key_Name log
+                Parser level_bracket_with_date
                 Reserve_Data On
                 Preserve_Key On
 
