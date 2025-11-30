@@ -51,7 +51,26 @@ spec:
           #   mountPath: /etc/machine-id
           #   readOnly: true
 
-        luaScripts: {}
+        luaScripts:
+          rename-k8s-fields.lua: |
+            function rename_k8s_fields(tag, timestamp, record)
+                if record["kubernetes"] then
+                    local k8s = record["kubernetes"]
+                    if k8s["container_name"] then
+                        record["container"] = k8s["container_name"]
+                    end
+                    if k8s["namespace_name"] then
+                        record["namespace"] = k8s["namespace_name"]
+                    end
+                    if k8s["container_image"] then
+                        record["image"] = k8s["container_image"]
+                    end
+                    if k8s["pod_name"] then
+                        record["pod"] = k8s["pod_name"]
+                    end
+                end
+                return 1, timestamp, record
+            end
 
         ## https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/configuration-file
         config:
@@ -84,12 +103,10 @@ spec:
                 K8S-Logging.Exclude On
 
             [FILTER]
-                Name modify
+                Name lua
                 Match kube.*
-                Rename kubernetes.container_image image
-                Rename kubernetes.container_name container
-                Rename kubernetes.namespace_name namespace
-                Rename kubernetes.pod_name pod
+                Script /fluent-bit/scripts/rename-k8s-fields.lua
+                Call rename_k8s_fields
 
             [FILTER]
                 Name parser
