@@ -29,6 +29,33 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
 
+        service:
+          annotations: {}
+          ports:
+            - name: metrics
+              port: 2021
+              protocol: TCP
+              targetPort: 2021
+
+        extraObjects:
+          - apiVersion: monitoring.coreos.com/v1
+            kind: ServiceMonitor
+            metadata:
+              name: fluentbit-metrics
+              namespace: {{ .Values.ns }}
+              labels:
+                app: fluentbit
+            spec:
+              selector:
+                matchLabels:
+                  app.kubernetes.io/name: fluent-bit
+                  app.kubernetes.io/instance: fluentbit
+              endpoints:
+                - port: metrics
+                  interval: 10s
+                  path: /metrics
+                  scheme: http
+
         daemonSetVolumes:
           - name: varlog
             hostPath:
@@ -132,16 +159,43 @@ spec:
                 Reserve_Data On
                 Preserve_Key On
 
+            [FILTER]
+                Name modify
+                Match kube.*
+                Condition Key_exists level
+                Set level ${lowercase(level)}
+
+            [FILTER]
+                Name rewrite_tag
+                Match kube.*
+                Rule $level ^error$ metrics.error false
+                Emitter_Name re_emitted_error
+
+            [FILTER]
+                Name prometheus
+                Match metrics.error
+                Metric_Name logs_error_count
+                Metric_Type counter
+                Metric_Description Total number of log entries with level=error
+                Metric_Value 1
+
           ## https://docs.fluentbit.io/manual/pipeline/outputs
           outputs: |
             [OUTPUT]
                 Name http
-                Match *
+                Match kube.*
                 host vl-single-server.{{ .Values.ns }}.svc
                 port 9428
                 uri /insert/jsonline?_stream_fields=stream,level,namespace,container,image&_msg_field=msg,log&_time_field=date
                 format json_lines
                 json_date_format iso8601
+
+            [OUTPUT]
+                Name prometheus_exporter
+                Match metrics.error
+                host 0.0.0.0
+                port 2021
+                metrics_path /metrics
 
           ## https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/upstream-servers
           ## This configuration is deprecated, please use `extraFiles` instead.
