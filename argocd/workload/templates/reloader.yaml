@@ -15,8 +15,8 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
-  source:
-    repoURL: https://stakater.github.io/stakater-charts 
+  sources:
+  - repoURL: https://stakater.github.io/stakater-charts 
     chart: reloader
     targetRevision: 2.2.5
     helm:
@@ -33,3 +33,27 @@ spec:
                 memory: 128Mi
           service:
             port: 9090
+
+  - repoURL: https://registry.nixys.io/chartrepo/public
+    chart: nxs-universal-chart
+    targetRevision: 2.8.3
+    helm:
+      releaseName: reloader
+      valuesObject:
+        releasePrefix: "-"
+
+        extraDeploy:
+          vmSrvScrape: |-
+            kind: VMServiceScrape
+            apiVersion: operator.victoriametrics.com/v1beta1
+            metadata:
+              name: reloader
+              namespace: {{ .Values.ns }}
+            spec:
+              endpoints:
+                - port: http
+                  path: /metrics
+              selector:
+                matchLabels:
+                  app.kubernetes.io/instance: reloader
+                  app.kubernetes.io/name: reloader
