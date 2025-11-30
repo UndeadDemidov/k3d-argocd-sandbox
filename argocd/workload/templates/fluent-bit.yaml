@@ -91,19 +91,6 @@ spec:
                 Reserve_Data On
                 Preserve_Key On
 
-            [FILTER]
-                Name modify
-                Match *
-                Condition Key_exists msg
-                Set _msg ${msg}
-
-            [FILTER]
-                Name modify
-                Match *
-                Condition Key_does_not_exist _msg
-                Condition Key_exists log
-                Set _msg ${log}
-
           ## https://docs.fluentbit.io/manual/pipeline/outputs
           outputs: |
             [OUTPUT]
@@ -111,7 +98,7 @@ spec:
                 Match *
                 host vl-single-server.{{ .Values.ns }}.svc
                 port 9428
-                uri /insert/jsonline?_stream_fields=stream,level&_msg_field=_msg&_time_field=date
+                uri /insert/jsonline?_stream_fields=stream,level&_msg_field=msg,log&_time_field=date
                 format json_lines
                 json_date_format iso8601
 
