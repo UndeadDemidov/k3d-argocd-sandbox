@@ -24,16 +24,23 @@ spec:
       valuesObject:
         releasePrefix: "-"
 
-        vmServiceScrapes:
-          fluentbit:
-            endpoints:
-              - port: http
-                path: /api/v2/metrics/prometheus
-              - port: metrics
-                path: /metrics
-            extraSelectorLabels:
-              app.kubernetes.io/instance: fluentbit
-              app.kubernetes.io/name: fluentbit
+        extraDeploy:
+          vmSrvScrape: |-
+            kind: VMServiceScrape
+            apiVersion: operator.victoriametrics.com/v1beta1
+            metadata:
+              name: fluentbit
+              namespace: {{ .Values.ns }}
+            spec:
+              endpoints:
+                - port: http
+                  path: /api/v2/metrics/prometheus
+                - port: metrics
+                  path: /metrics
+              selector:
+                matchLabels:
+                  app.kubernetes.io/instance: fluentbit
+                  app.kubernetes.io/name: fluentbit
 
   - repoURL: https://fluent.github.io/helm-charts
     chart: fluent-bit
