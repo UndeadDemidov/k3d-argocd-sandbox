@@ -201,7 +201,6 @@ spec:
                 Match *
                 host 0.0.0.0
                 port 2021
-                metrics_path /metrics
 
           ## https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/classic-mode/upstream-servers
           ## This configuration is deprecated, please use `extraFiles` instead.
