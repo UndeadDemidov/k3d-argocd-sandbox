@@ -21,6 +21,7 @@ spec:
     targetRevision: 2.2.5
     helm:
       valuesObject:
+        fullnameOverride: reloader
         reloader:
           deployment:
             resources:
@@ -30,3 +31,5 @@ spec:
               requests:
                 cpu: 10m
                 memory: 128Mi
+          service:
+            port: 9090
