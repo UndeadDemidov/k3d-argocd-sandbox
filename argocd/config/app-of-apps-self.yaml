@@ -10,6 +10,14 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: true
   source:
     repoURL: 'https://github.com/UndeadDemidov/k3d-argocd-sandbox.git'
     targetRevision: library
@@ -24,11 +32,3 @@ spec:
           value: default
         - name: ns
           value: argocd
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: argocd
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-      allowEmpty: true
