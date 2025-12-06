@@ -3,3 +3,5 @@
 registry/
 k3s-storage/
 **/ss-pub-key.pem
+
+.vscode/
