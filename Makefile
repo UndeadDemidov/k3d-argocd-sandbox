@@ -21,7 +21,7 @@ RESET = \033[0m
 
 # All targets
 .PHONY: help init init-dirs setup create delete recreate cleanup start stop status \
-	helm argo port argo-pw grafana-pw argo-bs test ss-key ss
+	helm argo port argo-pw grafana-pw argo-bs test ss-key ss ctx
 
 # Default target - show help
 help:
@@ -195,37 +195,45 @@ status:
 	@docker ps | awk 'NR==1 || /k3d-/'
 
 # ============================================================================
+# Kubernetes Context Target
+# ============================================================================
+
+# Set kubectl context to k3d cluster
+ctx:
+	@kubectl config use-context k3d-$(CLUSTER_NAME)
+
+# ============================================================================
 # ArgoCD Targets
 # ============================================================================
 
 # Add and update ArgoCD Helm repository
-helm:
+helm: ctx
 	@echo "Adding ArgoCD Helm repository..."
 	helm repo add argo https://argoproj.github.io/argo-helm
 	helm repo update argo
 
 # Deploy ArgoCD via Helm
-argo:
+argo: ctx
 	@echo "Deploying ArgoCD..."
 	helm install argocd argo/argo-cd -n argocd --version 9.1.4 --create-namespace -f argocd/values.yaml
 
 # Bootstrap ArgoCD
-argo-bs:
+argo-bs: ctx
 	@echo "Bootstrap ArgoCD..."
 	kubectl apply -f argocd/bootstrap.yaml
 
 # Port forward ArgoCD server
-port:
+port: ctx
 	@echo "Port forwarding ArgoCD server..."
 	kubectl port-forward svc/argocd-server -n argocd 9999:80
 
 # Get ArgoCD admin password
-argo-pw:
+argo-pw: ctx
 	@echo "Getting ArgoCD admin password..."
 	kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
 
 # Get Grafana admin password
-grafana-pw:
+grafana-pw: ctx
 	@echo "Getting Grafana admin password..."
 	kubectl get secret -n workload vica-metrics-stack-grafana -o json | jq -r '.data["admin-password"]' | base64 -d
 
@@ -234,7 +242,7 @@ grafana-pw:
 # ============================================================================
 
 # Get sealed secrets public key
-ss-key:
+ss-key: ctx
 	@echo "Get sealed secrets public key..."
 	kubectl -n workload get secret -l sealedsecrets.bitnami.com/sealed-secrets-key -o jsonpath='{.items[0].data.tls\.crt}' | base64 -d > ./secrets/in-cluster/ss-pub-key.pem
 
