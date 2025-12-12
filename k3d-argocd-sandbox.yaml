@@ -77,3 +77,9 @@ ports:
   - port: 3000:30030 # grafana
     nodeFilters:
       - server:0
+  - port: 8200:30200 # vault ui
+    nodeFilters:
+      - server:0
+  - port: 8201:30201 # vault ha leader
+    nodeFilters:
+      - server:0
