@@ -21,7 +21,7 @@ RESET = \033[0m
 
 # All targets
 .PHONY: help init init-dirs setup create delete recreate cleanup start stop status \
-	helm argo port argo-pw grafana-pw argo-bs test ss-key ss ctx
+	helm argo port argo-pw grafana-pw argo-bs test ss-key ss ctx vault
 
 # Default target - show help
 help:
@@ -54,6 +54,7 @@ help:
 	@echo "$(YELLOW)Secrets:$(RESET)"
 	@echo "  $(PURPLE)ss-key$(RESET)     $(GRAY)└─$(RESET) Get sealed secrets public key"
 	@echo "  $(PURPLE)ss$(RESET)         $(GRAY)└─$(RESET) Create sealed secrets"
+	@echo "  $(PURPLE)vault$(RESET)      $(GRAY)└─$(RESET) Init & unseal Vault cluster in 'workload' namespace"
 	@echo ""
 	@echo "$(YELLOW)Testing:$(RESET)"
 	@echo "  $(PURPLE)test$(RESET)       $(GRAY)└─$(RESET) Test applications (http://localhost:8090)"
@@ -240,6 +241,36 @@ grafana-pw: ctx
 # ============================================================================
 # Secrets Targets
 # ============================================================================
+
+# Init & unseal Vault cluster in 'workload' namespace using stored keys
+vault: ctx
+	@echo "Initializing and unsealing Vault cluster in 'workload' namespace..."
+	@VAULT_KEYS_FILE=.debug/vault-workload-keys.json; \
+	if [ ! -f $$VAULT_KEYS_FILE ]; then \
+		echo "Vault keys file not found, initializing Vault and saving keys to $$VAULT_KEYS_FILE..."; \
+		kubectl exec vault-0 -n workload -- vault operator init \
+			-key-shares=4 \
+			-key-threshold=2 \
+			-format=json > $$VAULT_KEYS_FILE; \
+	else \
+		echo "Using existing Vault keys from $$VAULT_KEYS_FILE"; \
+	fi; \
+	KEY1=$$(jq -r '.unseal_keys_b64[0]' $$VAULT_KEYS_FILE); \
+	KEY2=$$(jq -r '.unseal_keys_b64[1]' $$VAULT_KEYS_FILE); \
+	echo "Unsealing vault-0..."; \
+	kubectl exec vault-0 -n workload -- vault operator unseal $$KEY1; \
+	kubectl exec vault-0 -n workload -- vault operator unseal $$KEY2; \
+	echo "Joining vault-1 to raft cluster..."; \
+	kubectl exec -ti vault-1 -n workload -- vault operator raft join http://vault-0.vault-internal.workload:8200; \
+	echo "Unsealing vault-1..."; \
+	kubectl exec vault-1 -n workload -- vault operator unseal $$KEY1; \
+	kubectl exec vault-1 -n workload -- vault operator unseal $$KEY2; \
+	echo "Joining vault-2 to raft cluster..."; \
+	kubectl exec -ti vault-2 -n workload -- vault operator raft join http://vault-0.vault-internal.workload:8200; \
+	echo "Unsealing vault-2..."; \
+	kubectl exec vault-2 -n workload -- vault operator unseal $$KEY1; \
+	kubectl exec vault-2 -n workload -- vault operator unseal $$KEY2; \
+	echo "Vault cluster is initialized and unsealed."
 
 # Get sealed secrets public key
 ss-key: ctx
