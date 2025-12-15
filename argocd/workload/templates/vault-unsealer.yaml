@@ -59,6 +59,7 @@ spec:
           service:
             type: NodePort
             activeNodePort: 30201
+            publishNotReadyAddresses: false
           ha:
             enabled: true
             replicas: 2
