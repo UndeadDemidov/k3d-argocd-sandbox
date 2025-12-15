@@ -48,6 +48,9 @@ spec:
     helm:
       releaseName: eso
       valuesObject:
+        crds:
+          annotations:
+            argocd.argoproj.io/sync-options: ServerSideApply=true
         metrics:
           service:
             enabled: true
