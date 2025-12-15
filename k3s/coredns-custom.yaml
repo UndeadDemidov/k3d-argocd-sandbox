@@ -5,6 +5,6 @@ metadata:
   namespace: kube-system
 data:
   custom.server: |
-    gitlab.com githubusercontent.com github.com github.io googleapis.com grafana.com nixys.io mirror.yandex.ru hashicorp.com:53 {
+    gitlab.com githubusercontent.com github.com github.io googleapis.com grafana.com nixys.io mirror.yandex.ru hashicorp.com external-secrets.io:53 {
       forward . 1.1.1.1
     }
