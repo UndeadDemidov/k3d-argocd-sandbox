@@ -48,6 +48,7 @@ spec:
     helm:
       releaseName: eso
       valuesObject:
+        fullnameOverride: external-secrets
         crds:
           annotations:
             argocd.argoproj.io/sync-options: ServerSideApply=true
