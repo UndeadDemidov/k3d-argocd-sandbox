@@ -58,6 +58,8 @@ spec:
             secretName: vault
             secretKey: VAULT_TOKEN
           affinity: ""
+          authDelegator:
+            enabled: false
           ha:
             enabled: true
             replicas: 2
