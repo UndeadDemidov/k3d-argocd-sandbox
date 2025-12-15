@@ -24,23 +24,21 @@ spec:
       valuesObject:
         releasePrefix: "-"
         
-        # extraDeploy:
-        #   vmSrvScrape: |-
-        #     kind: VMServiceScrape
-        #     apiVersion: operator.victoriametrics.com/v1beta1
-        #     metadata:
-        #       name: vault
-        #       namespace: {{ .Values.ns }}
-        #     spec:
-        #       endpoints:
-        #         - port: http
-        #           path: /api/v2/metrics/prometheus
-        #         - port: metrics
-        #           path: /metrics
-        #       selector:
-        #         matchLabels:
-        #           app.kubernetes.io/instance: fluentbit
-        #           app.kubernetes.io/name: fluentbit
+        extraDeploy:
+          vmSrvScrape: |-
+            kind: VMServiceScrape
+            apiVersion: operator.victoriametrics.com/v1beta1
+            metadata:
+              name: external-secrets
+              namespace: {{ .Values.ns }}
+            spec:
+              endpoints:
+                - port: metrics
+                  path: /metrics
+              selector:
+                matchLabels:
+                  app.kubernetes.io/instance: eso
+                  app.kubernetes.io/name: external-secrets
 
   - repoURL: https://charts.external-secrets.io
     chart: external-secrets
