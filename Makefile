@@ -246,6 +246,7 @@ grafana-pw: ctx
 # Init & unseal Vault cluster in 'workload' namespace using stored keys
 vault: ctx
 	@echo "Initializing and unsealing Vault cluster in 'workload' namespace..."
+	@mkdir -p .debug
 	@VAULT_KEYS_FILE=.debug/vault-workload-keys.json; \
 	if [ ! -f $$VAULT_KEYS_FILE ]; then \
 		echo "Vault keys file not found, initializing Vault and saving keys to $$VAULT_KEYS_FILE..."; \
