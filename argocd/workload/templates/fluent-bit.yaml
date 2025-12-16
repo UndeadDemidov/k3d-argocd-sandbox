@@ -16,45 +16,6 @@ spec:
     syncOptions:
       - CreateNamespace=true
   sources:
-  - repoURL: https://registry.nixys.io/chartrepo/public
-    chart: nxs-universal-chart
-    targetRevision: 2.8.3
-    helm:
-      releaseName: fluentbit
-      valuesObject:
-        releasePrefix: "-"
-
-        # unfortunatelly, this doesn't work right now, so we're using extraDeploy instead
-        # waiting for release https://github.com/nixys/nxs-universal-chart/pull/89
-        # vmServiceScrapes:
-        #   fluentbit:
-        #     endpoints:
-        #       - port: http
-        #         path: /api/v2/metrics/prometheus
-        #       - port: metrics
-        #         path: /metrics
-        #     extraSelectorLabels:
-        #       app.kubernetes.io/instance: fluentbit
-        #       app.kubernetes.io/name: fluentbit
-        
-        extraDeploy:
-          vmSrvScrape: |-
-            kind: VMServiceScrape
-            apiVersion: operator.victoriametrics.com/v1beta1
-            metadata:
-              name: fluentbit
-              namespace: {{ .Values.ns }}
-            spec:
-              endpoints:
-                - port: http
-                  path: /api/v2/metrics/prometheus
-                - port: metrics
-                  path: /metrics
-              selector:
-                matchLabels:
-                  app.kubernetes.io/instance: fluentbit
-                  app.kubernetes.io/name: fluentbit
-
   - repoURL: https://fluent.github.io/helm-charts
     chart: fluent-bit
     targetRevision: 0.54.0
@@ -253,3 +214,42 @@ spec:
                 Format regex
                 Regex ^\[[^\]]+\]\s+\[\s*(?<level>\w+)\]\s+(?<message>.*)
                 Time_Keep Off
+
+  - repoURL: https://registry.nixys.io/chartrepo/public
+    chart: nxs-universal-chart
+    targetRevision: 2.8.3
+    helm:
+      releaseName: fluentbit
+      valuesObject:
+        releasePrefix: "-"
+
+        # unfortunatelly, this doesn't work right now, so we're using extraDeploy instead
+        # waiting for release https://github.com/nixys/nxs-universal-chart/pull/89
+        # vmServiceScrapes:
+        #   fluentbit:
+        #     endpoints:
+        #       - port: http
+        #         path: /api/v2/metrics/prometheus
+        #       - port: metrics
+        #         path: /metrics
+        #     extraSelectorLabels:
+        #       app.kubernetes.io/instance: fluentbit
+        #       app.kubernetes.io/name: fluentbit
+        
+        extraDeploy:
+          vmSrvScrape: |-
+            kind: VMServiceScrape
+            apiVersion: operator.victoriametrics.com/v1beta1
+            metadata:
+              name: fluentbit
+              namespace: {{ .Values.ns }}
+            spec:
+              endpoints:
+                - port: http
+                  path: /api/v2/metrics/prometheus
+                - port: metrics
+                  path: /metrics
+              selector:
+                matchLabels:
+                  app.kubernetes.io/instance: fluentbit
+                  app.kubernetes.io/name: fluentbit

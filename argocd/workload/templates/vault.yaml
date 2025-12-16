@@ -16,32 +16,6 @@ spec:
     syncOptions:
       - CreateNamespace=true
   sources:
-  - repoURL: https://registry.nixys.io/chartrepo/public
-    chart: nxs-universal-chart
-    targetRevision: 2.8.3
-    helm:
-      releaseName: vault
-      valuesObject:
-        releasePrefix: "-"
-        
-        # extraDeploy:
-        #   vmSrvScrape: |-
-        #     kind: VMServiceScrape
-        #     apiVersion: operator.victoriametrics.com/v1beta1
-        #     metadata:
-        #       name: vault
-        #       namespace: {{ .Values.ns }}
-        #     spec:
-        #       endpoints:
-        #         - port: http
-        #           path: /api/v2/metrics/prometheus
-        #         - port: metrics
-        #           path: /metrics
-        #       selector:
-        #         matchLabels:
-        #           app.kubernetes.io/instance: fluentbit
-        #           app.kubernetes.io/name: fluentbit
-
   - repoURL: https://helm.releases.hashicorp.com
     chart: vault
     targetRevision: 0.31.0
@@ -83,3 +57,29 @@ spec:
                 }
 
                 service_registration "kubernetes" {}
+
+  - repoURL: https://registry.nixys.io/chartrepo/public
+    chart: nxs-universal-chart
+    targetRevision: 2.8.3
+    helm:
+      releaseName: vault
+      valuesObject:
+        releasePrefix: "-"
+        
+        # extraDeploy:
+        #   vmSrvScrape: |-
+        #     kind: VMServiceScrape
+        #     apiVersion: operator.victoriametrics.com/v1beta1
+        #     metadata:
+        #       name: vault
+        #       namespace: {{ .Values.ns }}
+        #     spec:
+        #       endpoints:
+        #         - port: http
+        #           path: /api/v2/metrics/prometheus
+        #         - port: metrics
+        #           path: /metrics
+        #       selector:
+        #         matchLabels:
+        #           app.kubernetes.io/instance: fluentbit
+        #           app.kubernetes.io/name: fluentbit
