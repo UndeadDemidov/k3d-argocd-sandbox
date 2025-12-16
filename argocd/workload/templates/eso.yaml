@@ -39,6 +39,24 @@ spec:
                 matchLabels:
                   app.kubernetes.io/instance: eso
                   app.kubernetes.io/name: external-secrets
+          secretStore: |-
+            apiVersion: external-secrets.io/v1
+            kind: SecretStore
+            metadata:
+              name: vault-backend
+              namespace: {{ .Values.ns }}
+            spec:
+              provider:
+                vault:
+                  server: "http://vault.workload.svc:8200"
+                  path: "kv-v2"
+                  version: "v2"
+                  auth:
+                    kubernetes:
+                      mountPath: "kubernetes"
+                      role: "eso-role"
+                      serviceAccountRef:
+                        name: external-secrets
 
   - repoURL: https://charts.external-secrets.io
     chart: external-secrets
