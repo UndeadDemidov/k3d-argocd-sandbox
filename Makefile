@@ -275,38 +275,7 @@ vault: ctx
 
 # Configure Vault: enable Kubernetes auth, create policies and roles
 vault-cfg: ctx
-	@echo "Configuring Vault..."
-	@VAULT_ADDR=http://127.0.0.1:8201; \
-	VAULT_KEYS_FILE=.debug/vault-workload-keys.json; \
-	if [ ! -f $$VAULT_KEYS_FILE ]; then \
-		echo "Error: Vault keys file not found. Please run 'make vault' first."; \
-		exit 1; \
-	fi; \
-	export VAULT_ADDR=$$VAULT_ADDR; \
-	export VAULT_TOKEN=$$(jq -r '.root_token' $$VAULT_KEYS_FILE); \
-	echo "Enabling Kubernetes auth..."; \
-	vault auth enable kubernetes 2>/dev/null || echo "Kubernetes auth already enabled"; \
-	echo "Listing auth methods..."; \
-	vault auth list; \
-	echo "Configuring Kubernetes auth..."; \
-	kubectl exec -it vault-0 -n workload -- cat /var/run/secrets/kubernetes.io/serviceaccount/ca.crt > /tmp/vault-ca.crt; \
-	vault write auth/kubernetes/config \
-		token_reviewer_jwt="$$(kubectl exec -it vault-0 -n workload -- cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
-		kubernetes_host="https://kubernetes.default.svc:443" \
-		kubernetes_ca_cert=@/tmp/vault-ca.crt; \
-	rm -f /tmp/vault-ca.crt; \
-	echo "Writing ESO policy..."; \
-	vault policy write eso ./extra/vault/eso-policy.hcl; \
-	echo "Creating Kubernetes role for ESO..."; \
-	vault write auth/kubernetes/role/eso-role \
-		bound_service_account_names=external-secrets \
-		bound_service_account_namespaces=workload \
-		policies=eso \
-		ttl=24h \
-		audience="https://kubernetes.default.svc"; \
-	echo "Enabling KV v2 secrets engine..."; \
-	vault secrets enable -path=kv-v2 kv-v2 2>/dev/null || echo "KV v2 secrets engine already enabled"; \
-	echo "Vault configuration complete!"
+	@./extra/vault/vault-cfg.sh
 
 # Get sealed secrets public key
 ss-key: ctx
