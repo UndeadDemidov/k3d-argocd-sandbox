@@ -5,7 +5,7 @@ metadata:
   name: k3d-argocd-sandbox
 servers: 1
 agents: 0
-image: docker.io/rancher/k3s:v1.31.5-k3s1
+image: docker.io/rancher/k3s:v1.34.2-k3s1
 registries:
   use:
     - k3d-local-registry:5000
