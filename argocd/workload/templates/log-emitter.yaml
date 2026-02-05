@@ -1,0 +1,63 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: log-emitter
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.project }}
+  destination:
+    name: "{{ .Values.cluster }}"
+    namespace: {{ .Values.ns }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  sources:
+  - repoURL: https://registry.nixys.io/chartrepo/public
+    chart: nxs-universal-chart
+    targetRevision: 2.8.3
+    helm:
+      releaseName: log-emitter
+      valuesObject:
+        releasePrefix: "-"
+
+        extraDeploy:
+        - apiVersion: v1
+          kind: PersistentVolume
+          metadata:
+            name: log-emitter-data
+            labels:
+              type: local-storage
+          spec:
+            storageClassName: local-path
+            capacity:
+              storage: 1Gi
+            accessModes:
+              - ReadWriteOnce
+            hostPath:
+              path: /var/lib/rancher/k3s/storage/log-emitter/watch_dir
+              type: DirectoryOrCreate
+            persistentVolumeReclaimPolicy: Retain
+
+        deployments:
+          log-emitter:
+            containers:
+              - name: log-emitter
+                image: docker pull undeaddemidov/log-emitter
+                imageTag: 0.0.1
+                volumeMounts:
+                - name: log-emitter-data
+                  mountPath: /watch_dir
+            volumes:
+            volumeClaimTemplates:
+            - metadata:
+                name: log-emitter-data
+              spec:
+                accessModes: ["ReadWriteOnce"]
+                resources:
+                  requests:
+                    storage: 1Gi
+                volumeName: log-emitter-data
