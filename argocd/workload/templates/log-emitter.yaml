@@ -42,7 +42,7 @@ spec:
               type: DirectoryOrCreate
             persistentVolumeReclaimPolicy: Retain
 
-        deployments:
+        statefulSets:
           log-emitter:
             containers:
               - name: log-emitter
