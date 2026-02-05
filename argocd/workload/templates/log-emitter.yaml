@@ -46,7 +46,7 @@ spec:
           log-emitter:
             containers:
               - name: log-emitter
-                image: docker pull undeaddemidov/log-emitter
+                image: undeaddemidov/log-emitter
                 imageTag: 0.0.1
                 volumeMounts:
                 - name: log-emitter-data
