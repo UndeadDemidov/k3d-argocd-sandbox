@@ -58,7 +58,7 @@ spec:
 
                 service_registration "kubernetes" {}
 
-  - repoURL: https://registry.nixys.io/chartrepo/public
+  - repoURL: https://UndeadDemidov.github.io/charts
     chart: nxs-universal-chart
     targetRevision: 2.8.3
     helm:
