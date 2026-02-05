@@ -51,10 +51,6 @@ spec:
                 volumeMounts:
                 - name: log-emitter-data
                   mountPath: /watch_dir
-            volumes:
-            - name: log-emitter-data
-              persistentVolumeClaim:
-                claimName: log-emitter-data-pvc
             volumeClaimTemplates:
             - metadata:
                 name: log-emitter-data
