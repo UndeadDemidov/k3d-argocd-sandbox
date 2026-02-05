@@ -51,7 +51,6 @@ spec:
                 volumeMounts:
                 - name: log-emitter-data
                   mountPath: /watch_dir
-            volumes:
             volumeClaimTemplates:
             - metadata:
                 name: log-emitter-data
