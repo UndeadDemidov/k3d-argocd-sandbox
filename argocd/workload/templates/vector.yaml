@@ -51,6 +51,7 @@ spec:
                 .log = 
                   parse_json(.message) ??
                   parse_key_value(.message) ??
+                  parse_logfmt(.message) ??
                   parse_nginx_log(.message, "main") ??
                   .message
           sinks:
