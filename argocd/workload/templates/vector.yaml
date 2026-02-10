@@ -1,0 +1,76 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: reloader
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.project }}
+  destination:
+    name: "{{ .Values.cluster }}"
+    namespace: {{ .Values.ns }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  sources:
+  - repoURL: https://helm.vector.dev
+    chart: vector
+    targetRevision: 0.50.0
+    helm:
+      valuesObject:
+        role: Agent
+        dataDir: /vector-data-dir
+        resources: {}
+        args:
+          - -w
+          - --config-dir
+          - /etc/vector/
+        containerPorts:
+          - name: metrics
+            containerPort: 9090
+            protocol: TCP
+        service:
+          enabled: false
+        existingConfigMaps:
+          - vector-vl-config
+        customConfigNamespace: ""
+        customConfigName: vector-vl-config
+        customConfig:
+          data_dir: /vector-data-dir
+          api:
+            enabled: false
+            address: 0.0.0.0:8686
+            playground: true
+          sources:
+            k8s:
+              type: kubernetes_logs
+            internal_metrics:
+              type: internal_metrics
+          transforms:
+            parser:
+              type: remap
+              inputs: [k8s]
+              source: |
+                .log = parse_json(.message) ?? .message
+                del(.message)
+          sinks:
+            vlogs:
+              type: elasticsearch
+              inputs: [parser]
+              endpoints:
+                - http://vl-single-server.{{ .Values.ns }}.svc:9428/insert/elasticsearch/
+              mode: bulk
+              api_version: v8
+              compression: gzip
+              healthcheck:
+                enabled: false
+              request:
+                headers:
+                  VL-Time-Field: timestamp
+                  VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
+                  VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
+                  AccountID: "0"
+                  ProjectID: "0"
