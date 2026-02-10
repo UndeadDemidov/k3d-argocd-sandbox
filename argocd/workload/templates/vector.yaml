@@ -151,6 +151,7 @@ spec:
                 if match(.message, r'\.java:\d+\)') ?? false {
                   .level = "error"
                   .msg = .message
+                  del(.message)
                 } else {
                   .level = "unknown"
                   # Java/Log4j: 05-Feb-2026 14:46:25.841 INFO [pool-4-thread-7] logger.name message text
