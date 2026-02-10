@@ -68,11 +68,16 @@ spec:
                 if exists(.log."@version") {
                   .log.version = .log."@version"
                   del(.log."@version")
-                }
 
-                if exists(.log."app-name") {
-                  .log.app_name = .log."app-name"
-                  del(.log."app-name")
+                  if exists(.log."@timestamp") {
+                    .log.timestamp = .log."@timestamp"
+                    del(.log."@timestamp")
+                  }
+
+                  if exists(.log."app-name") {
+                    .log.app_name = .log."app-name"
+                    del(.log."app-name")
+                  }
                 }
 
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
@@ -99,6 +104,6 @@ spec:
                 headers:
                   VL-Time-Field: timestamp
                   VL-Stream-Fields: stream,node,namespace,pod,container
-                  VL-Msg-Field: log,msg,_msg,log.msg,log.message,message
+                  VL-Msg-Field: log
                   AccountID: "0"
                   ProjectID: "0"
