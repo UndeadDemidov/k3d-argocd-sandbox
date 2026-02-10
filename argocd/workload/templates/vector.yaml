@@ -148,7 +148,7 @@ spec:
               inputs: [merge_plain_multiline]
               source: |-
                 # Если лог содержит ".java:<число>)", то это stack trace — парсить не надо
-                if .message =~ r'\.java:\d+\)' {
+                if match(.message, r'\.java:\d+\)') ?? false {
                   .level = "error"
                   .msg = .message
                 } else {
