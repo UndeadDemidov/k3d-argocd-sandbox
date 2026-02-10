@@ -44,7 +44,8 @@ spec:
             k8s:
               type: kubernetes_logs
           transforms:
-            parser:
+            # 1. Нормализация: вытаскиваем k8s-поля, оставляем .message
+            normalize:
               type: remap
               inputs: [k8s]
               source: |-
@@ -54,38 +55,54 @@ spec:
                 .ip = .kubernetes.pod_ip
                 .namespace = .kubernetes.pod_namespace
                 .node = .kubernetes.pod_node_name
-
                 del(.file)
                 del(.kubernetes)
 
-                .log = 
-                  parse_json(.message) ??
-                  parse_key_value(.message) ??
-                  parse_logfmt(.message) ??
-                  parse_nginx_log(.message, "main") ??
-                  null
+            # 2. Детектор типа: json / logfmt / plain (по порядку, первый подходящий)
+            # JSON: успешный parse_json и результат — объект или массив
+            # logfmt: есть хотя бы одна пара key=value (регулярка), иначе plain текст дал бы ключи со значением true
+            detect:
+              type: remap
+              inputs: [normalize]
+              source: |-
+                parsed, err = parse_json(.message)
+                json_ok = err == null && (starts_with(encode_json(parsed), "{") || starts_with(encode_json(parsed), "["))
+                logfmt_ok = match(.message, r'[^\s=]+=(?:"[^"]*"|\S+)') ?? false
+                .log_format = if json_ok { "json" } else if logfmt_ok { "logfmt" } else { "plain" }
 
+            # 3. Маршрутизация по типу (первый совпавший забирает событие)
+            route_by_type:
+              type: exclusive_route
+              inputs: [detect]
+              routes:
+                - name: json
+                  condition:
+                    type: vrl
+                    source: '.log_format == "json"'
+                - name: logfmt
+                  condition:
+                    type: vrl
+                    source: '.log_format == "logfmt"'
+
+            # 4a. Ветка JSON: парсим и собираем .log / .msg
+            parse_json:
+              type: remap
+              inputs: [route_by_type.json]
+              source: |-
+                .log = parse_json!(.message)
                 if exists(.log."@version") {
                   .log.version = .log."@version"
                   del(.log."@version")
-
                   if exists(.log."@timestamp") {
                     .log.timestamp = .log."@timestamp"
                     del(.log."@timestamp")
                   }
-
                   if exists(.log."app-name") {
                     .log.app_name = .log."app-name"
                     del(.log."app-name")
                   }
                 }
-
-                .msg = if exists(.log) && .log != null {
-                  encode_json(.log)
-                } else {
-                  .message
-                }
-
+                .msg = encode_json(.log)
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
                 if exists(.log.level_value) {
                   v, err = to_string(.log.level_value)
@@ -93,12 +110,31 @@ spec:
                     .level = if v == "20000" { "info" } else if v == "10000" { "debug" } else if v == "30000" { "warn" } else if v == "40000" { "error" } else if v == "50000" { "fatal" } else if v == "5000" { "trace" } else { .level }
                   }
                 }
-
                 del(.message)
+
+            # 4b. Ветка logfmt: parse_key_value (logfmt key=value), потом .log / .msg
+            parse_logfmt:
+              type: remap
+              inputs: [route_by_type.logfmt]
+              source: |-
+                .log = parse_key_value!(.message)
+                .msg = encode_json(.log)
+                if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
+                del(.message)
+
+            # 4c. Ветка plain: без парсинга, .msg = исходное сообщение
+            parse_plain:
+              type: remap
+              inputs: [route_by_type._unmatched]
+              source: |-
+                .log = null
+                .msg = .message
+                del(.message)
+
           sinks:
             vlogs:
               type: elasticsearch
-              inputs: [parser]
+              inputs: [parse_json, parse_logfmt, parse_plain]
               endpoints:
                 - http://vl-single-server.{{ .Values.ns }}.svc:9428/insert/elasticsearch/
               mode: bulk
