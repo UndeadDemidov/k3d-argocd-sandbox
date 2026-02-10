@@ -62,8 +62,7 @@ spec:
                   parse_json(.message) ??
                   parse_key_value(.message) ??
                   parse_logfmt(.message) ??
-                  parse_nginx_log(.message, "main") ??
-                  .message
+                  parse_nginx_log!(.message, "main")
 
                 if exists(.log."@version") {
                   .log.version = .log."@version"
@@ -78,6 +77,12 @@ spec:
                     .log.app_name = .log."app-name"
                     del(.log."app-name")
                   }
+                }
+
+                .msg = if exists(.log) && .log != null && (typeof(.log) != "object" || length(keys(.log)) > 0) {
+                  encode_json(.log)
+                } else {
+                  .message
                 }
 
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
@@ -104,6 +109,6 @@ spec:
                 headers:
                   VL-Time-Field: timestamp
                   VL-Stream-Fields: stream,node,namespace,pod,container
-                  VL-Msg-Field: log
+                  VL-Msg-Field: msg
                   AccountID: "0"
                   ProjectID: "0"
