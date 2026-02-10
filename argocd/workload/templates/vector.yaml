@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: reloader
+  name: vector
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
