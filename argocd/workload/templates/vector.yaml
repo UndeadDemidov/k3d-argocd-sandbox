@@ -63,6 +63,10 @@ spec:
                 .node = .kubernetes.pod_node_name
 
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
+                if exists(.log.level_value) {
+                  v = to_string(.log.level_value)
+                  .level = if v == "20000" { "info" } else if v == "10000" { "debug" } else if v == "30000" { "warn" } else if v == "40000" { "error" } else if v == "50000" { "fatal" } else if v == "5000" { "trace" } else { .level }
+                }
 
                 del(.message)
                 del(.file)
