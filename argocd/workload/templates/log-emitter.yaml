@@ -48,6 +48,9 @@ spec:
               - name: log-emitter
                 image: undeaddemidov/log-emitter
                 imageTag: 0.0.1
+                env:
+                - name: LINE_DELAY
+                  value: "0"
                 volumeMounts:
                 - name: log-emitter-data
                   mountPath: /watch_dir
