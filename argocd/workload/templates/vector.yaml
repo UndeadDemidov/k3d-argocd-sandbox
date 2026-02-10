@@ -80,7 +80,6 @@ spec:
                   v, err = to_string(.log.level_value)
                   if err == null {
                     .level = if v == "20000" { "info" } else if v == "10000" { "debug" } else if v == "30000" { "warn" } else if v == "40000" { "error" } else if v == "50000" { "fatal" } else if v == "5000" { "trace" } else { .level }
-                    .level_value = .log.level_value
                   }
                 }
 
