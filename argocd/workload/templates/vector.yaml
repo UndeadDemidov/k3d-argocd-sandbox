@@ -175,6 +175,7 @@ spec:
                     .stack_trace = "java"
                   }
                   .msg = .message
+                  .log.message = .message
                   del(.message)
                 }
 
