@@ -65,6 +65,16 @@ spec:
                   parse_nginx_log(.message, "main") ??
                   .message
 
+                if exists(.log."@version") {
+                  .log.version = .log."@version"
+                  del(.log."@version")
+                }
+
+                if exists(.log."app-name") {
+                  .log.app_name = .log."app-name"
+                  del(.log."app-name")
+                }
+
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
                 if exists(.log.level_value) {
                   v, err = to_string(.log.level_value)
