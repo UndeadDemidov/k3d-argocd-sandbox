@@ -79,7 +79,7 @@ spec:
                   }
                 }
 
-                .msg = if exists(.log) && .log != null && (typeof(.log) != "object" || length(keys(.log)) > 0) {
+                .msg = if exists(.log) && .log != null {
                   encode_json(.log)
                 } else {
                   .message
