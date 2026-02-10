@@ -58,7 +58,7 @@ spec:
                 del(.file)
                 del(.kubernetes.container_id)
                 del(.kubernetes.container_image_id)
-                del(.kubernetes.pod_labels.controller-revision-hash)
+                del(.kubernetes.pod_labels["controller-revision-hash"])
                 del(.kubernetes.pod_owner)
                 del(.kubernetes.pod_uid)
           sinks:
