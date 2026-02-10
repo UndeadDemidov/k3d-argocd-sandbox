@@ -151,7 +151,8 @@ spec:
                 # Java/Log4j: 05-Feb-2026 14:46:25.841 INFO [pool-4-thread-7] logger.name message text
                 # Kafka: [kafka-producer-network-thread | producer-1] INFO com.farzoom.service.impl.KafkaMessageCallback - Message with UUID ... was send to topic ...
                 # Logback internal: 11:56:39,151 |-INFO in ch.qos.logback...@21c7208d - message (tag опционально в regex)
-                .log = parse_regex(.message, r'^(?P<timestamp>\d{2}-\w{3}-\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(?P<level>\w+)\s+\[(?P<thread>[^\]]+)\]\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+(?P<message>.*)$') ??
+                .log = parse_nginx_log(.message, "main") ??
+                      parse_regex(.message, r'^(?P<timestamp>\d{2}-\w{3}-\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(?P<level>\w+)\s+\[(?P<thread>[^\]]+)\]\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+(?P<message>.*)$') ??
                       parse_regex(.message, r'^\[(?P<thread>[^\]]+)\]\s+(?P<level>\w+)\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+-\s+(?P<message>.*)$') ??
                       parse_regex(.message, r'^(?P<timestamp>\d{1,2}:\d{2}:\d{2},\d{3})\s+\|\-(?P<level>\w+)\s+in\s+(?P<logger_name>[^\s]+?)(?:@(?P<tag>[0-9a-fA-F]+))?\s+-\s+(?P<message>.*)$') ??
                       null
