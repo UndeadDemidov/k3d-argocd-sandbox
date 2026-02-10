@@ -50,7 +50,9 @@ spec:
               source: >-
                 .log = 
                   parse_json(.message) ??
-                  parse_logfmt!(.message)
+                  parse_logfmt(.message) ??
+                  parse_nginx_log(.message) ??
+                  .message
           sinks:
             vlogs:
               type: elasticsearch
