@@ -141,13 +141,22 @@ spec:
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
                 del(.message)
 
-            # 4c. Ветка plain: без парсинга; .msg в одну строку (склеенный stack trace — newline → пробел)
+            # 4c. Ветка plain: парсинг Java/Log4j (DD-Mon-YYYY HH:MM:SS.mmm LEVEL [thread] logger message) или .msg в одну строку
             parse_plain:
               type: remap
               inputs: [merge_plain_multiline]
               source: |-
-                .log = null
-                .msg = replace(string!(.message), "\n", " ")
+                # default error beacause of Java stack trace from multiline.
+                .level = "error"
+
+                # Java/Log4j: 05-Feb-2026 14:46:25.841 INFO [pool-4-thread-7] logger.name message text
+                .log = parse_regex!(.message, r'^(?P<timestamp>\d{2}-\w{3}-\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(?P<level>\w+)\s+\[(?P<thread>[^\]]+)\]\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+(?P<message>.*)$')
+                if exists(.log.message) {
+                  .level = downcase(.log.level)
+                  .msg = encode_json(.log)
+                } else {
+                  .msg = .message
+                }
                 del(.message)
 
           sinks:
