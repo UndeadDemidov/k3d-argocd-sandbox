@@ -157,7 +157,6 @@ spec:
                 } else {
                   .msg = .message
                 }
-                del(.message)
 
           sinks:
             vlogs:
