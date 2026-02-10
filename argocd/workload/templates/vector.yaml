@@ -48,13 +48,6 @@ spec:
               type: remap
               inputs: [k8s]
               source: |-
-                .log = 
-                  parse_json(.message) ??
-                  parse_key_value(.message) ??
-                  parse_logfmt(.message) ??
-                  parse_nginx_log(.message, "main") ??
-                  .message
-
                 .image = .kubernetes.container_image
                 .container = .kubernetes.container_name
                 .pod = .kubernetes.pod_name
@@ -62,15 +55,26 @@ spec:
                 .namespace = .kubernetes.pod_namespace
                 .node = .kubernetes.pod_node_name
 
+                del(.file)
+                del(.kubernetes)
+
+                .log = 
+                  parse_json(.message) ??
+                  parse_key_value(.message) ??
+                  parse_logfmt(.message) ??
+                  parse_nginx_log(.message, "main") ??
+                  .message
+
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
                 if exists(.log.level_value) {
-                  v = to_string(.log.level_value)
-                  .level = if v == "20000" { "info" } else if v == "10000" { "debug" } else if v == "30000" { "warn" } else if v == "40000" { "error" } else if v == "50000" { "fatal" } else if v == "5000" { "trace" } else { .level }
+                  v, err = to_string(.log.level_value)
+                  if err == null {
+                    .level = if v == "20000" { "info" } else if v == "10000" { "debug" } else if v == "30000" { "warn" } else if v == "40000" { "error" } else if v == "50000" { "fatal" } else if v == "5000" { "trace" } else { .level }
+                    .level_value = .log.level_value
+                  }
                 }
 
                 del(.message)
-                del(.file)
-                del(.kubernetes)
           sinks:
             vlogs:
               type: elasticsearch
