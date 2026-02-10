@@ -84,6 +84,21 @@ spec:
                     type: vrl
                     source: '.log_format == "logfmt"'
 
+            # 3b. Plain: объединяем многострочные Java stack trace в одно событие (reduce)
+            # Новое событие — когда строка НЕ продолжение (не "\t", не "  at ", не "Caused by:", не "Suppressed:")
+            merge_plain_multiline:
+              type: reduce
+              inputs: [route_by_type._unmatched]
+              group_by: [namespace, pod, container]
+              merge_strategies:
+                message: concat_newline
+              starts_when:
+                type: vrl
+                source: |-
+                  !(match(string!(.message), r'^\t') ?? false || match(string!(.message), r'^\s+at\s') ?? false || match(string!(.message), r'^Caused by:') ?? false || match(string!(.message), r'^Suppressed:') ?? false)
+              expire_after_ms: 3000
+              flush_period_ms: 500
+
             # 4a. Ветка JSON: парсим и собираем .log / .msg
             parse_json:
               type: remap
@@ -126,13 +141,13 @@ spec:
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
                 del(.message)
 
-            # 4c. Ветка plain: без парсинга, .msg = исходное сообщение
+            # 4c. Ветка plain: без парсинга; .msg в одну строку (склеенный stack trace — newline → пробел)
             parse_plain:
               type: remap
-              inputs: [route_by_type._unmatched]
+              inputs: [merge_plain_multiline]
               source: |-
                 .log = null
-                .msg = .message
+                .msg = replace(string!(.message), "\n", " ")
                 del(.message)
 
           sinks:
