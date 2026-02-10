@@ -54,6 +54,13 @@ spec:
                   parse_logfmt(.message) ??
                   parse_nginx_log(.message, "main") ??
                   .message
+                del(.message)
+                del(.file)
+                del(.kubernetes.container_id)
+                del(.kubernetes.container_image_id)
+                del(.kubernetes.pod_labels.controller-revision-hash)
+                del(.kubernetes.pod_owner)
+                del(.kubernetes.pod_uid)
           sinks:
             vlogs:
               type: elasticsearch
