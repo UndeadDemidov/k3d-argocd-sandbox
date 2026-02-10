@@ -99,7 +99,7 @@ spec:
               expire_after_ms: 3000
               flush_period_ms: 500
 
-            # 4a. Ветка JSON: парсим и собираем .log / .msg
+            # 4a. Ветка JSON: парсим и собираем .log / .msg; при необходимости парсим вложенный JSON в .message
             parse_json:
               type: remap
               inputs: [route_by_type.json]
@@ -116,6 +116,15 @@ spec:
                     .log.app_name = .log."app-name"
                     del(.log."app-name")
                   }
+                }
+                # Вложенный JSON в message: "status = {...}" (ProcessStatusService) или "commitDraft: {...}" (DocumentServiceClientImpl)
+                msg_str = string!(.log.message ?? "")
+                if starts_with(msg_str, "status = ") {
+                  inner, err = parse_json(slice(msg_str, 9))
+                  if err == null { .log.status = inner }
+                } else if starts_with(msg_str, "commitDraft: ") {
+                  inner, err = parse_json(slice(msg_str, 13))
+                  if err == null { .log.commit_draft = inner }
                 }
                 .msg = encode_json(.log)
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
@@ -141,7 +150,8 @@ spec:
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
                 del(.message)
 
-            # 4c. Ветка plain: парсинг Java/Log4j (DD-Mon-YYYY HH:MM:SS.mmm LEVEL [thread] logger message) или .msg в одну строку
+            # 4c. Ветка plain: парсинг Java/Log4j (DD-Mon-YYYY HH:MM:SS.mmm LEVEL [thread] logger message),
+            #     Kafka producer ([thread] LEVEL logger - message) или .msg в одну строку
             parse_plain:
               type: remap
               inputs: [merge_plain_multiline]
@@ -150,7 +160,10 @@ spec:
                 .level = "error"
 
                 # Java/Log4j: 05-Feb-2026 14:46:25.841 INFO [pool-4-thread-7] logger.name message text
-                .log = parse_regex(.message, r'^(?P<timestamp>\d{2}-\w{3}-\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(?P<level>\w+)\s+\[(?P<thread>[^\]]+)\]\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+(?P<message>.*)$') ?? null
+                # Kafka: [kafka-producer-network-thread | producer-1] INFO com.farzoom.service.impl.KafkaMessageCallback - Message with UUID ... was send to topic ...
+                .log = parse_regex(.message, r'^(?P<timestamp>\d{2}-\w{3}-\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(?P<level>\w+)\s+\[(?P<thread>[^\]]+)\]\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+(?P<message>.*)$') ??
+                      parse_regex(.message, r'^\[(?P<thread>[^\]]+)\]\s+(?P<level>\w+)\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+-\s+(?P<message>.*)$')
+                      ?? null
                 if exists(.log) && exists(.log.message) {
                   .level = downcase!(.log.level)
                   .msg = encode_json(.log)
