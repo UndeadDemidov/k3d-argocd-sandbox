@@ -146,18 +146,17 @@ spec:
               type: remap
               inputs: [merge_plain_multiline]
               source: |-
-                # default error beacause of Java stack trace from multiline.
+                # default error because of Java stack trace from multiline
                 .level = "error"
 
                 # Java/Log4j: 05-Feb-2026 14:46:25.841 INFO [pool-4-thread-7] logger.name message text
-                .log = parse_regex(string!(.message), r'^(?P<timestamp>\d{2}-\w{3}-\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(?P<level>\w+)\s+\[(?P<thread>[^\]]+)\]\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+(?P<message>.*)$') ?? null
+                .log = parse_regex(.message, r'^(?P<timestamp>\d{2}-\w{3}-\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(?P<level>\w+)\s+\[(?P<thread>[^\]]+)\]\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+(?P<message>.*)$') ?? null
                 if exists(.log) && exists(.log.message) {
                   .level = downcase(.log.level)
                   .msg = encode_json(.log)
                 } else {
                   .msg = .message
                 }
-                del(.message)
 
           sinks:
             vlogs:
