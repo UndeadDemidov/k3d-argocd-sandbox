@@ -166,6 +166,7 @@ spec:
                     .msg = encode_json(.log)
                   } else {
                     .msg = .message
+                    del(.message)
                   }
                 }
 
