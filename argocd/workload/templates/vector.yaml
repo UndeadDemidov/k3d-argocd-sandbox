@@ -54,13 +54,19 @@ spec:
                   parse_logfmt(.message) ??
                   parse_nginx_log(.message, "main") ??
                   .message
+
+                .image = .kubernetes.container_image
+                .container = .kubernetes.container_name
+                .pod = .kubernetes.pod_name
+                .ip = .kubernetes.pod_ip
+                .namespace = .kubernetes.pod_namespace
+                .node = .kubernetes.pod_node_name
+
+                if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
+
                 del(.message)
                 del(.file)
-                del(.kubernetes.container_id)
-                del(.kubernetes.container_image_id)
-                del(.kubernetes.pod_labels["controller-revision-hash"])
-                del(.kubernetes.pod_owner)
-                del(.kubernetes.pod_uid)
+                del(.kubernetes)
           sinks:
             vlogs:
               type: elasticsearch
