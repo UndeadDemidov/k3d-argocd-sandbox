@@ -62,7 +62,8 @@ spec:
                   parse_json(.message) ??
                   parse_key_value(.message) ??
                   parse_logfmt(.message) ??
-                  parse_nginx_log!(.message, "main")
+                  parse_nginx_log(.message, "main") ??
+                  null
 
                 if exists(.log."@version") {
                   .log.version = .log."@version"
