@@ -117,7 +117,7 @@ spec:
               type: remap
               inputs: [route_by_type.logfmt]
               source: |-
-                .log = parse_key_value!(.message)
+                .log = parse_logfmt!(.message)
                 .msg = encode_json(.log)
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
                 del(.message)
