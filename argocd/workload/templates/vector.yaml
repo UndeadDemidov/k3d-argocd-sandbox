@@ -117,15 +117,6 @@ spec:
                     del(.log."app-name")
                   }
                 }
-                # Вложенный JSON в message: "status = {...}" (ProcessStatusService) или "commitDraft: {...}" (DocumentServiceClientImpl)
-                msg_str = string!(.log.message ?? "")
-                if starts_with(msg_str, "status = ") {
-                  inner, err = parse_json(slice(msg_str, 9))
-                  if err == null { .log.status = inner }
-                } else if starts_with(msg_str, "commitDraft: ") {
-                  inner, err = parse_json(slice(msg_str, 13))
-                  if err == null { .log.commit_draft = inner }
-                }
                 .msg = encode_json(.log)
                 if exists(.log.level) && .log.level != null && .log.level != "" { .level = .log.level }
                 if exists(.log.level_value) {
