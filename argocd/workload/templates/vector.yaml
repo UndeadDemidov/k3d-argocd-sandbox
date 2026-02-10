@@ -43,15 +43,15 @@ spec:
           sources:
             k8s:
               type: kubernetes_logs
-            internal_metrics:
-              type: internal_metrics
           transforms:
             parser:
               type: remap
               inputs: [k8s]
-              source: |
-                .log = parse_json(.message) ?? .message
-                del(.message)
+              source: >-
+                .log = 
+                  parse_json(.message) ??
+                  parse_key_value!(.message) ??
+                  .message
           sinks:
             vlogs:
               type: elasticsearch
@@ -67,6 +67,6 @@ spec:
                 headers:
                   VL-Time-Field: timestamp
                   VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
-                  VL-Msg-Field: message,msg,_msg,log.msg,log.message,log
+                  VL-Msg-Field: log,message,msg,_msg,log.msg,log.message
                   AccountID: "0"
                   ProjectID: "0"
