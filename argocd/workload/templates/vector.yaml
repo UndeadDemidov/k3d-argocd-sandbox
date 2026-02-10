@@ -81,7 +81,7 @@ spec:
               request:
                 headers:
                   VL-Time-Field: timestamp
-                  VL-Stream-Fields: stream,kubernetes.pod_name,kubernetes.container_name,kubernetes.pod_namespace
+                  VL-Stream-Fields: stream,node,namespace,pod,container
                   VL-Msg-Field: log,msg,_msg,log.msg,log.message,message
                   AccountID: "0"
                   ProjectID: "0"
