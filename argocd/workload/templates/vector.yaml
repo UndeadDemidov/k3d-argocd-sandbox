@@ -47,7 +47,7 @@ spec:
             parser:
               type: remap
               inputs: [k8s]
-              source: >-
+              source: |-
                 .log = 
                   parse_json(.message) ??
                   parse_key_value(.message) ??
