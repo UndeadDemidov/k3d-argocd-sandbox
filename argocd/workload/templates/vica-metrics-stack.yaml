@@ -39,6 +39,11 @@ spec:
       valuesObject:
         fullnameOverride: "vm-stack"
 
+        vmsingle:
+          spec:
+            extraArgs:
+              loggerFormat: json
+
         grafana:
           testFramework:
             enabled: false
