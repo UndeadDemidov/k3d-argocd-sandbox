@@ -28,6 +28,8 @@ spec:
           - -w
           - --config-dir
           - /etc/vector/
+          - --log-format
+          - json
         containerPorts:
           - name: metrics
             containerPort: 9090
