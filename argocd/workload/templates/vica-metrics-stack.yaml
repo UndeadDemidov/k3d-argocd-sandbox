@@ -57,8 +57,6 @@ spec:
 
         alertmanager:
           spec:
-            extraArgs:
-              loggerFormat: json
             configReloaderExtraArgs:
               loggerFormat: json
 
