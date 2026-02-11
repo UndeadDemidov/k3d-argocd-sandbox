@@ -1,6 +1,8 @@
 # Global configuration
 global:
   domain: argocd.local
+  logging:
+    format: json
   clusterConfig:
     enabled: true
     defaultCluster: "https://kubernetes.default.svc"
