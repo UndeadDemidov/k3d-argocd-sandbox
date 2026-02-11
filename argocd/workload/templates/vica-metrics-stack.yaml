@@ -43,6 +43,11 @@ spec:
           testFramework:
             enabled: false
 
+          grafana.ini:
+            log:
+              mode: console
+              format: json
+
           service:
             type: NodePort
             nodePort: 30030
