@@ -46,6 +46,7 @@ spec:
           grafana.ini:
             log:
               mode: console
+            log.console:
               format: json
 
           service:
