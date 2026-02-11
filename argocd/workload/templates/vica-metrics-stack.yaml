@@ -44,6 +44,11 @@ spec:
             extraArgs:
               loggerFormat: json
 
+        vmalert:
+          spec:
+            extraArgs:
+              loggerFormat: json
+
         grafana:
           testFramework:
             enabled: false
