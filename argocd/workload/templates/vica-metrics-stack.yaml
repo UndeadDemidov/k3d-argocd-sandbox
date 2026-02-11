@@ -52,10 +52,21 @@ spec:
           spec:
             extraArgs:
               loggerFormat: json
+            configReloaderExtraArgs:
+              loggerFormat: json
+
+        alertmanager:
+          spec:
+            extraArgs:
+              loggerFormat: json
+            configReloaderExtraArgs:
+              loggerFormat: json
 
         vmagent:
           spec:
             extraArgs:
+              loggerFormat: json
+            configReloaderExtraArgs:
               loggerFormat: json
 
         grafana:
