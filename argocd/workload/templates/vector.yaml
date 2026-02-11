@@ -65,8 +65,7 @@ spec:
               type: remap
               inputs: [normalize]
               source: |-
-                parsed, err = parse_json(.message)
-                json_ok = err == null && (starts_with(encode_json(parsed), "{") || starts_with(encode_json(parsed), "["))
+                json_ok = starts_with(.message, "{")
                 logfmt_ok = match(.message, r'[^\s=]+=(?:"[^"]*"|\S+)') ?? false
                 .log_format = if json_ok { "json" } else if logfmt_ok { "logfmt" } else { "plain" }
 
@@ -95,7 +94,7 @@ spec:
               starts_when:
                 type: vrl
                 source: |-
-                  !(match(string!(.message), r'^\t') || match(string!(.message), r'^\s+at\s') || match(string!(.message), r'^Caused by:') || match(string!(.message), r'^Suppressed:'))
+                  !(match(string!(.message), r'^\t') || match(string!(.message), r'^\s+at\s') || match(string!(.message), r'^Caused by:') || match(string!(.message), r'^Suppressed:') || match(string!(.message), r'^Exception in thread') || match(string!(.message), r'^[a-zA-Z][a-zA-Z0-9_.]*(?:Exception|Error):\s'))
               expire_after_ms: 3000
               flush_period_ms: 500
 
@@ -159,10 +158,14 @@ spec:
                 .level = "unknown"
                 # Java/Log4j: 05-Feb-2026 14:46:25.841 INFO [pool-4-thread-7] logger.name message text
                 # Kafka: [kafka-producer-network-thread | producer-1] INFO com.farzoom.service.impl.KafkaMessageCallback - Message with UUID ... was send to topic ...
+                # Gravitee: 00:17:30.929 [gio.sync-master1] [] ERROR i.g.g.services.sync.SyncManager - An error occurs while synchronizing organizations
+                # Spring Boot: 2026-01-28 12:18:46.467  INFO 8 --- [nio-8080-exec-5] o.s...NativeEnvironmentRepository : Adding property source ...
                 # Logback internal: 11:56:39,151 |-INFO in ch.qos.logback...@21c7208d - message (tag опционально в regex)
                 .log = parse_nginx_log(.message, "main") ??
                       parse_regex(.message, r'^(?P<timestamp>\d{2}-\w{3}-\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(?P<level>\w+)\s+\[(?P<thread>[^\]]+)\]\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+(?P<message>.*)$') ??
                       parse_regex(.message, r'^\[(?P<thread>[^\]]+)\]\s+(?P<level>\w+)\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+-\s+(?P<message>.*)$') ??
+                      parse_regex(.message, r'^(?P<timestamp>\d{2}:\d{2}:\d{2}\.\d{3})\s+\[(?P<thread>[^\]]+)\](?:\s+\[(?P<context>[^\]]*)\])?\s+(?P<level>[A-Z]+)\s+(?P<logger_name>\S+)\s+-\s+(?P<message>.*)$') ??
+                      parse_regex(.message, r'^(?P<timestamp>\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(?P<level>[A-Z]+)\s+(?P<pid>\d+)\s+---\s+\[(?P<thread>[^\]]+)\]\s+(?P<logger_name>[^:]+?)\s*:\s+(?P<message>.*)$') ??
                       parse_regex(.message, r'^(?P<timestamp>\d{1,2}:\d{2}:\d{2},\d{3})\s+\|\-(?P<level>\w+)\s+in\s+(?P<logger_name>[^\s]+?)(?:@(?P<tag>[0-9a-fA-F]+))?\s+-\s+(?P<message>.*)$') ??
                       null
                 if exists(.log) && exists(.log.message) {
