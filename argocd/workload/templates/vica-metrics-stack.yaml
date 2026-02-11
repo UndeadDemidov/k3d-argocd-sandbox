@@ -39,12 +39,21 @@ spec:
       valuesObject:
         fullnameOverride: "vm-stack"
 
+        victoria-metrics-operator:
+          extraArgs:
+            loggerFormat: json
+
         vmsingle:
           spec:
             extraArgs:
               loggerFormat: json
 
         vmalert:
+          spec:
+            extraArgs:
+              loggerFormat: json
+
+        vmagent:
           spec:
             extraArgs:
               loggerFormat: json
