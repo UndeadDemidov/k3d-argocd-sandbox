@@ -41,7 +41,7 @@ spec:
 
         victoria-metrics-operator:
           extraArgs:
-            loggerFormat: json
+            zap-encoder: json
 
         vmsingle:
           spec:
