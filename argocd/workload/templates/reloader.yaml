@@ -23,6 +23,7 @@ spec:
       valuesObject:
         fullnameOverride: reloader
         reloader:
+          logFormat: json
           deployment:
             resources:
               limits:
