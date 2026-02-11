@@ -65,7 +65,8 @@ spec:
               type: remap
               inputs: [normalize]
               source: |-
-                json_ok = starts_with(.message, "{") ?? false
+                parsed, err = parse_json(.message)
+                json_ok = err == null && (starts_with(encode_json(parsed), "{") || starts_with(encode_json(parsed), "["))
                 logfmt_ok = match(.message, r'[^\s=]+=(?:"[^"]*"|\S+)') ?? false
                 .log_format = if json_ok { "json" } else if logfmt_ok { "logfmt" } else { "plain" }
 
