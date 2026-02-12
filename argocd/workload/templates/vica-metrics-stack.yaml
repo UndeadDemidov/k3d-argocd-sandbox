@@ -77,6 +77,11 @@ spec:
           extraArgs:
             - --log.format=json
 
+        # https://prometheus-community.github.io/helm-charts
+        # chart: kube-state-metrics
+        kube-state-metrics:
+          fullnameOverride: kube-state-metrics-vm-stack
+
         # https://grafana-community.github.io/helm-charts
         # chart: grafana
         grafana:
