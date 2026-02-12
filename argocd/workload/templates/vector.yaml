@@ -62,14 +62,14 @@ spec:
 
             # 2. Детектор типа: json / logfmt / plain (по порядку, первый подходящий)
             # JSON: успешный parse_json и результат — объект или массив
-            # logfmt: есть хотя бы одна пара key=value (регулярка), иначе plain текст дал бы ключи со значением true
+            # logfmt: сообщение НАЧИНАЕТСЯ с key=value (не glog/klog с вкраплениями key=value в тексте)
             detect:
               type: remap
               inputs: [normalize]
               source: |-
-                parsed, err = parse_json(.message)
-                json_ok = err == null && (starts_with(encode_json(parsed), "{") || starts_with(encode_json(parsed), "["))
-                logfmt_ok = match(.message, r'[^\s=]+=(?:"[^"]*"|\S+)') ?? false
+                json_ok = starts_with(.message, "{") ?? false
+                # logfmt: начинается с key=value или key="value"
+                logfmt_ok = match(.message, r'^[^\s=]+=(?:"[^"]*"|\S+)') ?? false
                 .log_format = if json_ok { "json" } else if logfmt_ok { "logfmt" } else { "plain" }
 
             # 3. Маршрутизация по типу (первый совпавший забирает событие)
