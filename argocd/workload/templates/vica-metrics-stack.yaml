@@ -40,7 +40,7 @@ spec:
         fullnameOverride: "vm-stack"
 
         victoria-metrics-operator:
-          fullnameOverride: "vm-operator"
+          fullnameOverride: "vmoperator-vm-stack"
           extraArgs:
             zap-encoder: json
 
