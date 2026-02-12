@@ -56,13 +56,6 @@ spec:
             configReloaderExtraArgs:
               loggerFormat: json
 
-        alertmanager:
-          spec:
-            extraArgs:
-              log.format: json
-            configReloaderExtraArgs:
-              loggerFormat: json
-
         vmagent:
           spec:
             extraArgs:
@@ -70,9 +63,22 @@ spec:
             configReloaderExtraArgs:
               loggerFormat: json
 
+        alertmanager:
+          spec:
+            extraArgs:
+              log.format: json
+            configReloaderExtraArgs:
+              loggerFormat: json
+
+        # https://prometheus-community.github.io/helm-charts
+        # chart: prometheus-node-exporter
         prometheus-node-exporter:
           fullnameOverride: "node-exporter-vm-stack"
+          extraArgs:
+            - --log.format=json
 
+        # https://grafana-community.github.io/helm-charts
+        # chart: grafana
         grafana:
           testFramework:
             enabled: false
