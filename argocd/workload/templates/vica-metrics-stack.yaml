@@ -70,6 +70,9 @@ spec:
             configReloaderExtraArgs:
               loggerFormat: json
 
+        prometheus-node-exporter:
+          fullnameOverride: "node-exporter-vm-stack"
+
         grafana:
           testFramework:
             enabled: false
