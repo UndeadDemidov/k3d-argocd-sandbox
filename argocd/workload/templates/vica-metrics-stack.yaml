@@ -85,6 +85,8 @@ spec:
         # https://grafana-community.github.io/helm-charts
         # chart: grafana
         grafana:
+          fullnameOverride: grafana-vm-stack
+
           testFramework:
             enabled: false
 
