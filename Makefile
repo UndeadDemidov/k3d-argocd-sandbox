@@ -237,7 +237,7 @@ argo-pw: ctx
 # Get Grafana admin password
 grafana-pw: ctx
 	@echo "Getting Grafana admin password..."
-	kubectl get secret -n workload vica-metrics-stack-grafana -o json | jq -r '.data["admin-password"]' | base64 -d
+	kubectl get secret -n workload grafana-vm-stack -o json | jq -r '.data["admin-password"]' | base64 -d
 
 # ============================================================================
 # Secrets Targets
