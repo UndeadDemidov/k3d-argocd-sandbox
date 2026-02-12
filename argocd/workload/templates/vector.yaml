@@ -164,7 +164,8 @@ spec:
                 # Gravitee: 00:17:30.929 [gio.sync-master1] [] ERROR i.g.g.services.sync.SyncManager - An error occurs while synchronizing organizations
                 # Spring Boot: 2026-01-28 12:18:46.467  INFO 8 --- [nio-8080-exec-5] o.s...NativeEnvironmentRepository : Adding property source ...
                 # Logback internal: 11:56:39,151 |-INFO in ch.qos.logback...@21c7208d - message (tag опционально в regex)
-                .log = parse_nginx_log(.message, "main") ??
+                .log = parse_klog(.message) ??
+                      parse_nginx_log(.message, "main") ??
                       parse_regex(.message, r'^(?P<timestamp>\d{2}-\w{3}-\d{4}\s+\d{2}:\d{2}:\d{2}\.\d{3})\s+(?P<level>\w+)\s+\[(?P<thread>[^\]]+)\]\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+(?P<message>.*)$') ??
                       parse_regex(.message, r'^\[(?P<thread>[^\]]+)\]\s+(?P<level>\w+)\s+(?P<logger_name>[a-zA-Z0-9_.]+)\s+-\s+(?P<message>.*)$') ??
                       parse_regex(.message, r'^(?P<timestamp>\d{2}:\d{2}:\d{2}\.\d{3})\s+\[(?P<thread>[^\]]+)\](?:\s+\[(?P<context>[^\]]*)\])?\s+(?P<level>[A-Z]+)\s+(?P<logger_name>\S+)\s+-\s+(?P<message>.*)$') ??
