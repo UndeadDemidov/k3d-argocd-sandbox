@@ -39,6 +39,8 @@ spec:
       valuesObject:
         fullnameOverride: "vm-stack"
 
+        # https://victoriametrics.github.io/helm-charts/
+        # chart: victoria-metrics-operator
         victoria-metrics-operator:
           fullnameOverride: "vmoperator-vm-stack"
           extraArgs:
