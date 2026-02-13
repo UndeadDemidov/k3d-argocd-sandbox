@@ -51,6 +51,7 @@ spec:
               type: remap
               inputs: [k8s]
               source: |-
+                .cluster = "{{ .Values.cluster }}"
                 .env = "{{ .Values.cluster }}"
 
                 .image = .kubernetes.container_image
