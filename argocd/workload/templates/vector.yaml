@@ -111,7 +111,7 @@ spec:
               starts_when:
                 type: vrl
                 source: |-
-                  !(match(string!(.message), r'^\t') || match(string!(.message), r'^\s+at\s') || match(string!(.message), r'^Caused by:') || match(string!(.message), r'^Suppressed:') || match(string!(.message), r'^Exception in thread') || match(string!(.message), r'^[a-zA-Z][a-zA-Z0-9_.]*(?:Exception|Error):\s'))
+                  !(match(string!(.message), r'^\t') || match(string!(.message), r'^\s+at\s') || match(string!(.message), r'^Caused by:') || match(string!(.message), r'^Suppressed:'))
               expire_after_ms: 3000
               flush_period_ms: 500
 
