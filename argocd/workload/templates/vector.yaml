@@ -61,14 +61,14 @@ spec:
                 .node = .kubernetes.pod_node_name
 
                 labels = .kubernetes.pod_labels
-                if exists(labels."app.kubernetes.io/name") && !is_empty(labels."app.kubernetes.io/name") {
-                  .app = labels."app.kubernetes.io/name"
-                } else if exists(labels."k8s-app") && !is_empty(labels."k8s-app") {
-                  .app = labels."k8s-app"
-                } else if exists(labels."app") && !is_empty(labels."app") {
-                  .app = labels."app"
-                } else if exists(labels."job-name") && !is_empty(labels."job-name") {
-                  .app = labels."job-name"
+                if exists(labels."app.kubernetes.io/name") && !is_empty(string!(labels."app.kubernetes.io/name")) {
+                  .app = string!(labels."app.kubernetes.io/name")
+                } else if exists(labels."k8s-app") && !is_empty(string!(labels."k8s-app")) {
+                  .app = string!(labels."k8s-app")
+                } else if exists(labels."app") && !is_empty(string!(labels."app")) {
+                  .app = string!(labels."app")
+                } else if exists(labels."job-name") && !is_empty(string!(labels."job-name")) {
+                  .app = string!(labels."job-name")
                 }
 
                 del(.file)
