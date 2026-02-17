@@ -32,3 +32,27 @@ spec:
         crds:
           annotations:
             argocd.argoproj.io/sync-options: ServerSideApply=true
+
+  - repoURL: https://UndeadDemidov.github.io/charts
+    chart: nxs-universal-chart
+    targetRevision: 2.8.3
+    helm:
+      releaseName: log-emitter
+      valuesObject:
+        releasePrefix: "-"
+
+        extraDeploy:
+        - apiVersion: postgresql.cnpg.io/v1
+          kind: ClusterImageCatalog
+          metadata:
+            name: postgresql
+          spec:
+            images:
+              - major: 15
+                image: ghcr.io/cloudnative-pg/postgresql:15.14
+              - major: 16
+                image: ghcr.io/cloudnative-pg/postgresql:16.10
+              - major: 17
+                image: ghcr.io/cloudnative-pg/postgresql:17.6
+              - major: 18
+                image: ghcr.io/cloudnative-pg/postgresql:18.1
