@@ -215,7 +215,7 @@ spec:
               request:
                 headers:
                   VL-Time-Field: timestamp
-                  VL-Stream-Fields: stream,env,node,namespace,app,pod,container,level
+                  VL-Stream-Fields: stream,cluster,env,node,namespace,app,pod,container,level
                   VL-Msg-Field: msg
                   AccountID: "0"
                   ProjectID: "0"
