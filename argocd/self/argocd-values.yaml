@@ -7,6 +7,10 @@ global:
     enabled: true
     defaultCluster: "https://kubernetes.default.svc"
 
+configs:
+  cm:
+    kustomize.buildOptions: --enable-helm
+
 # Server configuration
 server:
   service:
