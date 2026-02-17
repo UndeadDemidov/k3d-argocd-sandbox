@@ -56,3 +56,27 @@ spec:
                 image: ghcr.io/cloudnative-pg/postgresql:17.6
               - major: 18
                 image: ghcr.io/cloudnative-pg/postgresql:18.1
+
+        - apiVersion: postgresql.cnpg.io/v1
+          kind: Cluster
+          metadata:
+            name: postgres
+            namespace: {{ .Values.ns }}
+          spec:
+            instances: 2
+
+            imageCatalogRef:
+              apiGroup: postgresql.cnpg.io
+              kind: ClusterImageCatalog
+              name: postgresql
+              major: 18
+
+            bootstrap:
+              initdb:
+                database: app
+                owner: app
+                secret:
+                  name: app-secret
+
+            storage:
+              size: 1Gi
