@@ -16,7 +16,8 @@ spec:
     syncOptions:
       - CreateNamespace=true
   sources:
-  - repoURL: https://cloudnative-pg.github.io/charts
+  # repoURL: https://cloudnative-pg.github.io/charts
+  - repoURL: https://UndeadDemidov.github.io/charts
     chart: cloudnative-pg
     targetRevision: 0.27.1
     helm:
@@ -27,3 +28,7 @@ spec:
             create: true
             annotations:
               argocd.argoproj.io/sync-options: ServerSideApply=true
+
+        crds:
+          annotations:
+            argocd.argoproj.io/sync-options: ServerSideApply=true
