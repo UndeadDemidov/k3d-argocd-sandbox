@@ -25,3 +25,5 @@ spec:
         monitoring:
           grafanaDashboard:
             create: true
+            annotations:
+              argocd.argoproj.io/sync-options: ServerSideApply=true
