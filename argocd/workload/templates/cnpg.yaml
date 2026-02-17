@@ -80,3 +80,12 @@ spec:
 
             storage:
               size: 1Gi
+
+        - apiVersion: v1
+          kind: Secret
+          metadata:
+            name: app-secret
+          type: kubernetes.io/basic-auth
+          data:
+            username: YXBw
+            password: cGFzc3dvcmQ=
