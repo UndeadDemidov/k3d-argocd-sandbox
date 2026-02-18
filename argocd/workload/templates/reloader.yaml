@@ -45,8 +45,8 @@ spec:
 
         extraDeploy:
           vmSrvScrape: |-
-            kind: VMServiceScrape
             apiVersion: operator.victoriametrics.com/v1beta1
+            kind: VMServiceScrape
             metadata:
               name: reloader
               namespace: {{ .Values.ns }}
