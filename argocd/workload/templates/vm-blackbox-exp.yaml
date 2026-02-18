@@ -54,10 +54,10 @@ spec:
                   cluster: "{{ .Values.cluster }}"
                 targets:
                   - "https://ya.ru"
-                relabelConfigs:
-                - sourceLabels: [__address__]
-                  targetLabel: __param_target
-                - sourceLabels: [__param_target]
-                  targetLabel: instance
-                - targetLabel: __address__
-                  replacement: vm-blackbox-exporter.{{ .Values.ns }}.svc:9115
+                # relabelConfigs:
+                # - sourceLabels: [__address__]
+                #   targetLabel: __param_target
+                # - sourceLabels: [__param_target]
+                #   targetLabel: instance
+                # - targetLabel: __address__
+                #   replacement: vm-blackbox-exporter.{{ .Values.ns }}.svc:9115
