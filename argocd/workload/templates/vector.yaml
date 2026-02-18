@@ -4,6 +4,8 @@ metadata:
   name: vector
   finalizers:
     - resources-finalizer.argocd.argoproj.io
+  labels:
+    component: telemetry
 spec:
   project: {{ .Values.project }}
   destination:
