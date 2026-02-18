@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vm-blackbox-exporter
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: {{ .Values.project }}
+  destination:
+    name: "{{ .Values.cluster }}"
+    namespace: {{ .Values.ns }}
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  sources:
+  # https://git.a-fin.tech/farzoom/afinance-2.0/gitops/ecosystem-helm-charts/prometheus-blackbox-exporter
+  - repoURL: https://prometheus-community.github.io/helm-charts
+    chart: prometheus-blackbox-exporter
+    targetRevision: 11.8.0
+    helm:
+      releaseName: vm-blackbox-exporter
+      valuesObject:
+        fullnameOverride: vm-blackbox-exporter
+
+  - repoURL: https://registry.dev.a-fin.tech/chartrepo/afinance
+    chart: nxs-universal-chart
+    targetRevision: 2.8.3
+    helm:
+      releaseName: vm-blackbox-exporter
+      valuesObject:
+        releasePrefix: "-"
+
+        extraDeploy:
+        # https://docs.victoriametrics.com/operator/api/#vmprobe
+        - apiVersion: operator.victoriametrics.com/v1beta1
+          kind: VMProbe 
+          metadata:
+            name: blackbox-http-2xx
+            namespace: {{ .Values.ns }}
+          spec:
+            jobName: blackbox-exporter-http-2xx
+            vmProberSpec:
+              url: vm-blackbox-exporter.{{ .Values.ns }}.svc:9115
+            interval: "15s"
+            path: "/probe"
+            module: http_2xx
+            # proxyURL:
+            targets:
+              static:
+                labels:
+                  cluster: "{{ .Values.cluster }}"
+                targets:
+                  - "https://ya.ru"
