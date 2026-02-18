@@ -37,7 +37,7 @@ spec:
     chart: nxs-universal-chart
     targetRevision: 2.8.3
     helm:
-      releaseName: log-emitter
+      releaseName: cnpg
       valuesObject:
         releasePrefix: "-"
 
