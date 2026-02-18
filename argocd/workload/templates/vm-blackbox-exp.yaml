@@ -49,7 +49,7 @@ spec:
             module: http_2xx
             # proxyURL:
             targets:
-              static:
+              staticConfig:
                 labels:
                   cluster: "{{ .Values.cluster }}"
                 targets:
