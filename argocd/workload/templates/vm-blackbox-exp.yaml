@@ -54,10 +54,25 @@ spec:
                   cluster: "{{ .Values.cluster }}"
                 targets:
                   - "https://ya.ru"
-                # relabelConfigs:
-                # - sourceLabels: [__address__]
-                #   targetLabel: __param_target
-                # - sourceLabels: [__param_target]
-                #   targetLabel: instance
-                # - targetLabel: __address__
-                #   replacement: vm-blackbox-exporter.{{ .Values.ns }}.svc:9115
+
+        - kind: VMServiceScrape
+          apiVersion: operator.victoriametrics.com/v1beta1
+          metadata:
+            name: vm-blackbox-exporter
+            namespace: {{ .Values.ns }}
+          spec:
+            jobLabel: vm-blackbox-exporter
+            endpoints:
+            - port: http
+              path: /metrics
+              interval: 30s
+              scrapeTimeout: 30s
+            namespaceSelector:
+              matchNames:
+              - telemetry
+            selector:
+              matchLabels:
+                app.kubernetes.io/name: prometheus-blackbox-exporter
+                app.kubernetes.io/instance: vm-blackbox-exporter
+            # attach_metadata:
+            #   namespace: true
