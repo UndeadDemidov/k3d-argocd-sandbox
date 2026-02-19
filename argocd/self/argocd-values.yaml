@@ -41,3 +41,24 @@ repoServer:
 applicationSet:
   metrics:
     enabled: true
+
+extraObjects:
+- kind: VMServiceScrape
+  apiVersion: operator.victoriametrics.com/v1beta1
+  metadata:
+    name: argocd-metrics
+    namespace: argocd
+    labels:
+      app.kubernetes.io/name: argocd-metrics
+      app.kubernetes.io/instance: argocd
+  spec:
+    jobLabel: argocd-metrics
+    endpoints:
+    - port: metrics
+    namespaceSelector:
+      matchNames:
+        - argocd
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: argocd-metrics
+        app.kubernetes.io/instance: argocd
