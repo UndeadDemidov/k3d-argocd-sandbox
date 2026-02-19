@@ -69,7 +69,7 @@ spec:
               scrapeTimeout: 30s
             namespaceSelector:
               matchNames:
-              - telemetry
+              - workload
             selector:
               matchLabels:
                 app.kubernetes.io/name: prometheus-blackbox-exporter
