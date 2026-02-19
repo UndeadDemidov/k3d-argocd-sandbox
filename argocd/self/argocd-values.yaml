@@ -54,7 +54,7 @@ extraObjects:
   spec:
     jobLabel: argocd-metrics
     endpoints:
-    - port: metrics
+    - port: http-metrics
     namespaceSelector:
       matchNames:
         - argocd
