@@ -7,6 +7,10 @@ global:
     enabled: true
     defaultCluster: "https://kubernetes.default.svc"
 
+controller:
+  metrics:
+    enabled: true
+
 # Server configuration
 server:
   service:
@@ -17,6 +21,8 @@ server:
     - --insecure
   ingress:
     enabled: false
+  metrics:
+    enabled: true
 
 repoServer:
   livenessProbe:
@@ -29,3 +35,9 @@ repoServer:
     initialDelaySeconds: 30
     periodSeconds: 10
     failureThreshold: 3
+  metrics:
+    enabled: true
+
+applicationSet:
+  metrics:
+    enabled: true
