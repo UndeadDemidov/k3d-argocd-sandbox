@@ -42,6 +42,10 @@ applicationSet:
   metrics:
     enabled: true
 
+notifications:
+  metrics:
+    enabled: true
+
 extraObjects:
 - kind: VMServiceScrape
   apiVersion: operator.victoriametrics.com/v1beta1
