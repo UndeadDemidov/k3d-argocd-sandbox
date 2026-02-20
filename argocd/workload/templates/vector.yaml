@@ -37,7 +37,7 @@ spec:
             containerPort: 9090
             protocol: TCP
         service:
-          enabled: true
+          enabled: false
         customConfig:
           data_dir: /vector-data-dir
           api:
