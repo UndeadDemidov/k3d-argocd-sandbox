@@ -235,13 +235,13 @@ spec:
           kind: VMPodScrape
           metadata:
             name: vector
-            namespace: telemetry
+            namespace: {{ .Values.ns }}
           spec:
             podMetricsEndpoints:
               - port: metrics
             namespaceSelector:
               matchNames:
-                - telemetry
+                - {{ .Values.ns }}
             selector:
               matchLabels:
                 app.kubernetes.io/instance=vector
