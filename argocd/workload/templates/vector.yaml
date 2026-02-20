@@ -47,6 +47,8 @@ spec:
           sources:
             k8s:
               type: kubernetes_logs
+            vector_metrics:
+              type: internal_metrics
           transforms:
             # 1. Нормализация: вытаскиваем k8s-поля, оставляем .message
             normalize:
@@ -221,3 +223,7 @@ spec:
                   VL-Msg-Field: msg
                   AccountID: "0"
                   ProjectID: "0"
+            vm:
+              type: prometheus_exporter
+              inputs:
+              - vector_metrics
