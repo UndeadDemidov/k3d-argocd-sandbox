@@ -237,6 +237,7 @@ spec:
             name: vector
             namespace: {{ .Values.ns }}
           spec:
+            jobLabel: app.kubernetes.io/name
             podMetricsEndpoints:
               - port: metrics
             namespaceSelector:
