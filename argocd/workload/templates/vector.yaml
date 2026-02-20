@@ -49,6 +49,7 @@ spec:
               type: kubernetes_logs
             vector_metrics:
               type: internal_metrics
+              scrape_interval_secs: 60
           transforms:
             # 1. Нормализация: вытаскиваем k8s-поля, оставляем .message
             normalize:
@@ -228,3 +229,20 @@ spec:
               address: "0.0.0.0:9598"
               inputs:
               - vector_metrics
+
+        extraObjects:
+        - apiVersion: operator.victoriametrics.com/v1beta1
+          kind: VMPodScrape
+          metadata:
+            name: vector
+            namespace: telemetry
+          spec:
+            podMetricsEndpoints:
+              - port: metrics
+            namespaceSelector:
+              matchNames:
+                - telemetry
+            selector:
+              matchLabels:
+                app.kubernetes.io/instance=vector
+                app.kubernetes.io/name=vector
