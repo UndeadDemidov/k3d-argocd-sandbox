@@ -34,7 +34,7 @@ spec:
           - json
         containerPorts:
           - name: metrics
-            containerPort: 9090
+            containerPort: 9598
             protocol: TCP
         service:
           enabled: false
@@ -225,5 +225,6 @@ spec:
                   ProjectID: "0"
             vm:
               type: prometheus_exporter
+              address: "0.0.0.0:9598"
               inputs:
               - vector_metrics
