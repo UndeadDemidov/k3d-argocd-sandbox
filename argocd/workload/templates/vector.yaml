@@ -32,23 +32,23 @@ spec:
           - /etc/vector/
           - --log-format
           - json
-        # containerPorts:
-        #   - name: metrics
-        #     containerPort: 9598
-        #     protocol: TCP
+        containerPorts:
+          - name: metrics
+            containerPort: 9598
+            protocol: TCP
         service:
           enabled: false
         customConfig:
           data_dir: /vector-data-dir
           api:
-            enabled: true
+            enabled: false
             address: 0.0.0.0:8686
             playground: true
           sources:
             k8s:
               type: kubernetes_logs
-            # vector_metrics:
-            #   type: internal_metrics
+            vector_metrics:
+              type: internal_metrics
           transforms:
             # 1. Нормализация: вытаскиваем k8s-поля, оставляем .message
             normalize:
@@ -223,8 +223,8 @@ spec:
                   VL-Msg-Field: msg
                   AccountID: "0"
                   ProjectID: "0"
-            # vm:
-            #   type: prometheus_exporter
-            #   address: "0.0.0.0:9598"
-            #   inputs:
-            #   - vector_metrics
+            vm:
+              type: prometheus_exporter
+              address: "0.0.0.0:9598"
+              inputs:
+              - vector_metrics
